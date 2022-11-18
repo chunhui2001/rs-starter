@@ -1,28 +1,40 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+#[macro_use] extern crate rocket;
+#[macro_use] extern crate rocket_include_static_resources;
+
+use rocket::State;
+
+use rocket_include_static_resources::{EtagIfNoneMatch, StaticContextManager, StaticResponse};
+
+static_response_handler! {
+    "/favicon.ico" => favicon => "favicon",
+    "/favicon.svg" => favicon_svg => "favicon-svg",
+}
 
 #[get("/")]
-async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("Hello world!")
+fn index() -> &'static str {
+    "你好, world!"
 }
 
-#[post("/echo")]
-async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
+#[get("/readme")]
+fn readme(
+    static_resources: &State<StaticContextManager>,
+    etag_if_none_match: EtagIfNoneMatch,
+) -> StaticResponse {
+    static_resources.build(&etag_if_none_match, "readme")
 }
 
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok().body("Hey there!")
-}
+#[launch]
+fn rocket() -> _ {
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
-        App::new()
-            .service(hello)
-            .service(echo)
-            .route("/hey", web::get().to(manual_hello))
-    })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+    rocket::build()
+        .attach(static_resources_initializer!(
+            "favicon" => "static/favicon.ico",
+            "favicon-svg" => "static/favicon.svg",
+            "readme" => ("README.md"),
+        ))
+        .mount("/", routes![favicon, favicon_svg])
+        .mount("/", routes![index])
+        .mount("/", routes![readme])
+
+
 }
