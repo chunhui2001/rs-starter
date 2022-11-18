@@ -7,12 +7,13 @@ run:
 
 build:
 	@# cargo build --release --target x86_64-unknown-linux-musl
-	cargo build
+	cargo build --release
 
 start:
-	./target/debug/rs-starter
+	@#./target/debug/rs-starter
+	./target/release/rs-starter
 
 ### benchmark
 # make load n=10000 p=info
 load:
-	ab -n 10000 -c 10 "http://localhost:8080/"
+	ab -n 100000 -c 10 "http://127.0.0.1:8000/"
