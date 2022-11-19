@@ -5,6 +5,16 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+#[dependencies]
+#rocket = "0.5.0-rc.2"
+#rocket-include-static-resources = "0.10.3"
+
 [dependencies]
-rocket = "0.5.0-rc.2"
-rocket-include-static-resources = "0.10.3"
+env_logger = "0.8"
+log = "0.4"
+actix-web = { version = "4", features = ["openssl"] }
+actix-cors= { version = "0.6.4" }
+actix-files = { version = "0.6.2" }
+openssl = { version = "0.10" }
+futures = { version = "0.3.25" }
+derive_more = { version = "0.99.17" }

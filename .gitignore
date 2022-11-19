@@ -55,3 +55,4 @@ app-linux-*
 *.debug
 *.ignore
 .env.temp
+tmp*
