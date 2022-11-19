@@ -18,3 +18,10 @@ actix-files = { version = "0.6.2" }
 openssl = { version = "0.10" }
 futures = { version = "0.3.25" }
 derive_more = { version = "0.99.17" }
+serde = "1.0.136"
+dotenv = "0.15.0"
+
+[dependencies.mongodb]
+version = "2.2.0"
+default-features = false
+features = ["async-std-runtime"]

@@ -17,6 +17,10 @@ start:
 	@#./target/debug/rs-starter
 	RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/release/rs-starter
 
+clear:
+	rm -rf src/tmp*
+	rm -rf src/*/tmp*
+
 tls:
 	@#openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -sha256 -subj "/C=CN/ST=Fujian/L=Xiamen/O=TVlinux/OU=Org/CN=muro.lxd"
 	openssl rsa -in key.pem -out nopass.pem

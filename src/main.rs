@@ -1,12 +1,19 @@
+mod services;
+mod models;
+mod repository;
+
 use std::io;
 use std::time::Duration;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use actix_cors::Cors;
 use actix_web::http::{StatusCode};
-use actix_web::{http, get, post, web, error, middleware::Logger, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{http, get, post, web, error, middleware::Logger, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
 use futures::{future::ok, stream::once};
 use derive_more::{Display, Error};
+
+use services::user_service::{create_user, get_user, update_user, delete_user, get_all_users};
+use repository::mongodb_repo::MongoRepo;
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -60,6 +67,12 @@ async fn errors() -> Result<&'static str, MyError> {
     Err(MyError { name: "MyError,粗欧文" })
 }
 
+async fn about() -> Result<HttpResponse> {
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type("text/html;charset=utf-8")
+        .body("<h1>About</h1>"))
+}
+
 async fn manual_hello() -> impl Responder {
     HttpResponse::Ok()
     .content_type("text/plain;charset=utf-8")
@@ -85,7 +98,11 @@ async fn main() -> std::io::Result<()> {
     builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
     builder.set_certificate_chain_file("cert.pem").unwrap();
 
-    HttpServer::new(|| {
+
+    let db = MongoRepo::init().await;
+    let db_data = Data::new(db);
+
+    HttpServer::new(move || {
     
         // let logger = Logger::default();
         let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms");
@@ -99,17 +116,24 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .wrap(logger) // This is a basic example using middleware::Logger which depends on env_logger and log
+            .app_data(db_data.clone())
             .service(favicon)
             .service(favicon_svg)
             .service(hello)
             .service(echo)
             .service(stream)
             .service(readme)
+            .service(create_user)
+            .service(get_user) //add this
+            .service(update_user) //add this
+            .service(delete_user) //add this
+            .service(get_all_users)//add this
             .service(errors)
             .default_service(
                 web::route().to(not_found)
             )
             .route("/hey", web::get().to(manual_hello))
+            .route("/about", web::get().to(about))
     
     })
     .keep_alive(Duration::from_secs(75))
