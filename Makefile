@@ -7,7 +7,7 @@ install:
 	cargo install
 
 run:
-	RUST_BACKTRACE=1 RUST_LOG=actix_web=info cargo run
+	RUST_BACKTRACE=1 RUST_LOG=actix_web=info cargo run --bin rs-starter
 
 build:
 	@# cargo build --release --target x86_64-unknown-linux-musl

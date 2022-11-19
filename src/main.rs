@@ -67,6 +67,13 @@ async fn errors() -> Result<&'static str, MyError> {
     Err(MyError { name: "MyError,粗欧文" })
 }
 
+#[get("/throw-error/{id}")]
+async fn throw_error(id: web::Path<u32>) -> Result<HttpResponse, MyError> {
+    let user_id: u32 = id.into_inner();
+    println!("{}", user_id);
+    Err(MyError { name: "MyError,粗欧文" })
+}
+
 async fn about() -> Result<HttpResponse> {
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type("text/html;charset=utf-8")
@@ -114,9 +121,9 @@ async fn main() -> std::io::Result<()> {
               .max_age(3600);
 
         App::new()
+            .app_data(db_data.clone())
             .wrap(cors)
             .wrap(logger) // This is a basic example using middleware::Logger which depends on env_logger and log
-            .app_data(db_data.clone())
             .service(favicon)
             .service(favicon_svg)
             .service(hello)
@@ -129,11 +136,13 @@ async fn main() -> std::io::Result<()> {
             .service(delete_user) //add this
             .service(get_all_users)//add this
             .service(errors)
+            .service(throw_error)
             .default_service(
                 web::route().to(not_found)
             )
             .route("/hey", web::get().to(manual_hello))
             .route("/about", web::get().to(about))
+            .route("/throw-error", web::get().to(about))
     
     })
     .keep_alive(Duration::from_secs(75))

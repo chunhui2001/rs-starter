@@ -70,7 +70,11 @@ https://users.rust-lang.org/t/error-404-unfound-routes-actix-web/46484/3
 https://github.com/secretkeysio/jelly-actix-web-starter
 https://github.com/Keats/tera
 
-
+### rust-servers-services-and-apps
+# 5 Handling errors
+https://livebook.manning.com/book/rust-servers-services-and-apps/chapter-5/v-12/40
+https://docs.rs/actix-web/0.5.3/actix_web/middleware/struct.ErrorHandlers.html
+https://dev.to/chaudharypraveen98/error-handling-in-actix-web-4mm
 
 
 
