@@ -43,12 +43,6 @@ async fn readme(_req: HttpRequest) -> io::Result<NamedFile> {
     Ok(NamedFile::open("README.md")?)
 }
 
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok()
-    .content_type("text/plain;charset=utf-8")
-    .body("Hey there! 啊啊送积分啦；送积分啦")
-}
-
 // Response body can be generated asynchronously. 
 // In this case, body must implement the stream trait Stream<Item=Bytes, Error=Error>, i.e.:
 #[get("/stream")]
@@ -64,6 +58,12 @@ async fn stream() -> HttpResponse {
 #[get("/errors")]
 async fn errors() -> Result<&'static str, MyError> {
     Err(MyError { name: "MyError,粗欧文" })
+}
+
+async fn manual_hello() -> impl Responder {
+    HttpResponse::Ok()
+    .content_type("text/plain;charset=utf-8")
+    .body("Hey there! 啊啊送积分啦；送积分啦")
 }
 
 async fn not_found() -> Result<HttpResponse> {
