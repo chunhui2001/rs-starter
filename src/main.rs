@@ -117,7 +117,7 @@ async fn main() -> std::io::Result<()> {
     let db_data = Data::new(db);
 
     log::info!("booting up");
-        
+
     HttpServer::new(move || {
     
         let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms")
@@ -140,10 +140,10 @@ async fn main() -> std::io::Result<()> {
             .service(stream)
             .service(readme)
             .service(create_user)
-            .service(get_user) //add this
-            .service(update_user) //add this
-            .service(delete_user) //add this
-            .service(get_all_users)//add this
+            .service(get_user)
+            .service(update_user)
+            .service(delete_user)
+            .service(get_all_users)
             .service(errors)
             .service(throw_error)
             .default_service(
