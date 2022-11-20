@@ -1,3 +1,4 @@
+mod middleware;
 mod services;
 mod models;
 mod repository;
@@ -7,13 +8,14 @@ use std::time::Duration;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 use actix_cors::Cors;
 use actix_web::http::{StatusCode};
-use actix_web::{http, get, post, web, error, middleware::Logger, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{http, get, post, web, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
 use futures::{future::ok, stream::once};
 use derive_more::{Display, Error};
 
 use services::user_service::{create_user, get_user, update_user, delete_user, get_all_users};
 use repository::mongodb_repo::MongoRepo;
+use middleware::access_filter::Logger;
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -111,8 +113,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
     
-        // let logger = Logger::default();
-        let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms");
+        let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms")
+                           // .log_target("http_log")
+                           .exclude("/favicon.ico");
 
         let cors = Cors::default()
               .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])

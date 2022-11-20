@@ -1754,15 +1754,23 @@ version = "0.1.0"
 dependencies = [
  "actix-cors",
  "actix-files",
+ "actix-service",
+ "actix-utils",
  "actix-web",
+ "bytes",
  "derive_more",
  "dotenv",
  "env_logger",
  "futures",
+ "futures-core",
+ "futures-util",
  "log",
  "mongodb",
  "openssl",
+ "pin-project-lite",
+ "regex",
  "serde",
+ "time 0.3.17",
 ]
 
 [[package]]

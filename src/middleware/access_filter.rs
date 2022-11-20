@@ -12,74 +12,17 @@ use std::{
     task::{Context, Poll},
 };
 
-use actix_service::{Service, Transform};
-use actix_utils::future::{ready, Ready};
+use actix_utils::future::{ready, Ready}; 
 use bytes::Bytes;
-use futures_core::ready;
+use futures_core::ready; 
 use log::{debug, warn};
-use pin_project_lite::pin_project;
+use pin_project_lite::pin_project; 
 use regex::{Regex, RegexSet};
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
 
-use crate::{
-    body::{BodySize, MessageBody},
-    http::header::HeaderName,
-    service::{ServiceRequest, ServiceResponse},
-    Error, Result,
-};
+use actix_web::body::{BodySize, MessageBody};
+use actix_web::{ dev::{Service, ServiceRequest, ServiceResponse, Transform}, http::header::HeaderName, Error, Result }; 
 
-/// Middleware for logging request and response summaries to the terminal.
-///
-/// This middleware uses the `log` crate to output information. Enable `log`'s output for the
-/// "actix_web" scope using [`env_logger`](https://docs.rs/env_logger) or similar crate.
-///
-/// # Default Format
-/// The [`default`](Logger::default) Logger uses the following format:
-///
-/// ```plain
-/// %a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T
-///
-/// Example Output:
-/// 127.0.0.1:54278 "GET /test HTTP/1.1" 404 20 "-" "HTTPie/2.2.0" 0.001074
-/// ```
-///
-/// # Examples
-/// ```
-/// use actix_web::{middleware::Logger, App};
-///
-/// // access logs are printed with the INFO level so ensure it is enabled by default
-/// env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
-///
-/// let app = App::new()
-///     // .wrap(Logger::default())
-///     .wrap(Logger::new("%a %{User-Agent}i"));
-/// ```
-///
-/// # Format
-/// Variable | Description
-/// -------- | -----------
-/// `%%` | The percent sign
-/// `%a` | Peer IP address (or IP address of reverse proxy if used)
-/// `%t` | Time when the request started processing (in RFC 3339 format)
-/// `%r` | First line of request (Example: `GET /test HTTP/1.1`)
-/// `%s` | Response status code
-/// `%b` | Size of response in bytes, including HTTP headers
-/// `%T` | Time taken to serve the request, in seconds to 6 decimal places
-/// `%D` | Time taken to serve the request, in milliseconds
-/// `%U` | Request URL
-/// `%{r}a` | "Real IP" remote address **\***
-/// `%{FOO}i` | `request.headers["FOO"]`
-/// `%{FOO}o` | `response.headers["FOO"]`
-/// `%{FOO}e` | `env_var["FOO"]`
-/// `%{FOO}xi` | [Custom request replacement](Logger::custom_request_replace) labelled "FOO"
-/// `%{FOO}xo` | [Custom response replacement](Logger::custom_response_replace) labelled "FOO"
-///
-/// # Security
-/// **\*** "Real IP" remote address is calculated using
-/// [`ConnectionInfo::realip_remote_addr()`](crate::dev::ConnectionInfo::realip_remote_addr())
-///
-/// If you use this value, ensure that all requests come from trusted hosts. Otherwise, it is
-/// trivial for the remote client to falsify their source IP address.
 #[derive(Debug)]
 pub struct Logger(Rc<Inner>);
 
@@ -92,7 +35,7 @@ struct Inner {
 }
 
 impl Logger {
-    /// Create `Logger` middleware with the specified `format`.
+
     pub fn new(format: &str) -> Logger {
         Logger(Rc::new(Inner {
             format: Format::new(format),
@@ -102,7 +45,6 @@ impl Logger {
         }))
     }
 
-    /// Ignore and do not log access info for specified path.
     pub fn exclude<T: Into<String>>(mut self, path: T) -> Self {
         Rc::get_mut(&mut self.0)
             .unwrap()
@@ -111,131 +53,24 @@ impl Logger {
         self
     }
 
-    /// Ignore and do not log access info for paths that match regex.
-    pub fn exclude_regex<T: Into<String>>(mut self, path: T) -> Self {
-        let inner = Rc::get_mut(&mut self.0).unwrap();
-        let mut patterns = inner.exclude_regex.patterns().to_vec();
-        patterns.push(path.into());
-        let regex_set = RegexSet::new(patterns).unwrap();
-        inner.exclude_regex = regex_set;
-        self
-    }
+    // pub fn exclude_regex<T: Into<String>>(mut self, path: T) -> Self {
+    //     let inner = Rc::get_mut(&mut self.0).unwrap();
+    //     let mut patterns = inner.exclude_regex.patterns().to_vec();
+    //     patterns.push(path.into());
+    //     let regex_set = RegexSet::new(patterns).unwrap();
+    //     inner.exclude_regex = regex_set;
+    //     self
+    // }
 
-    /// Sets the logging target to `target`.
-    ///
-    /// By default, the log target is `module_path!()` of the log call location. In our case, that
-    /// would be `actix_web::middleware::logger`.
-    ///
-    /// # Examples
-    /// Using `.log_target("http_log")` would have this effect on request logs:
-    /// ```diff
-    /// - [2015-10-21T07:28:00Z INFO  actix_web::middleware::logger] 127.0.0.1 "GET / HTTP/1.1" 200 88 "-" "dmc/1.0" 0.001985
-    /// + [2015-10-21T07:28:00Z INFO  http_log] 127.0.0.1 "GET / HTTP/1.1" 200 88 "-" "dmc/1.0" 0.001985
-    ///                               ^^^^^^^^
-    /// ```
-    pub fn log_target(mut self, target: impl Into<Cow<'static, str>>) -> Self {
-        let inner = Rc::get_mut(&mut self.0).unwrap();
-        inner.log_target = target.into();
-        self
-    }
+    // pub fn log_target(mut self, target: impl Into<Cow<'static, str>>) -> Self {
+    //     let inner = Rc::get_mut(&mut self.0).unwrap();
+    //     inner.log_target = target.into();
+    //     self
+    // }
 
-    /// Register a function that receives a ServiceRequest and returns a String for use in the
-    /// log line. The label passed as the first argument should match a replacement substring in
-    /// the logger format like `%{label}xi`.
-    ///
-    /// It is convention to print "-" to indicate no output instead of an empty string.
-    ///
-    /// # Examples
-    /// ```
-    /// # use actix_web::http::{header::HeaderValue};
-    /// # use actix_web::middleware::Logger;
-    /// # fn parse_jwt_id (_req: Option<&HeaderValue>) -> String { "jwt_uid".to_owned() }
-    /// Logger::new("example %{JWT_ID}xi")
-    ///     .custom_request_replace("JWT_ID", |req| parse_jwt_id(req.headers().get("Authorization")));
-    /// ```
-    pub fn custom_request_replace(
-        mut self,
-        label: &str,
-        f: impl Fn(&ServiceRequest) -> String + 'static,
-    ) -> Self {
-        let inner = Rc::get_mut(&mut self.0).unwrap();
-
-        let ft = inner.format.0.iter_mut().find(
-            |ft| matches!(ft, FormatText::CustomRequest(unit_label, _) if label == unit_label),
-        );
-
-        if let Some(FormatText::CustomRequest(_, request_fn)) = ft {
-            // replace into None or previously registered fn using same label
-            request_fn.replace(CustomRequestFn {
-                inner_fn: Rc::new(f),
-            });
-        } else {
-            // non-printed request replacement function diagnostic
-            debug!(
-                "Attempted to register custom request logging function for nonexistent label: {}",
-                label
-            );
-        }
-
-        self
-    }
-
-    /// Register a function that receives a `ServiceResponse` and returns a string for use in the
-    /// log line.
-    ///
-    /// The label passed as the first argument should match a replacement substring in
-    /// the logger format like `%{label}xo`.
-    ///
-    /// It is convention to print "-" to indicate no output instead of an empty string.
-    ///
-    /// The replacement function does not have access to the response body.
-    ///
-    /// # Examples
-    /// ```
-    /// # use actix_web::{dev::ServiceResponse, middleware::Logger};
-    /// fn log_if_error(res: &ServiceResponse) -> String {
-    ///     if res.status().as_u16() >= 400 {
-    ///         "ERROR".to_string()
-    ///     } else {
-    ///         "-".to_string()
-    ///     }
-    /// }
-    ///
-    /// Logger::new("example %{ERROR_STATUS}xo")
-    ///     .custom_response_replace("ERROR_STATUS", |res| log_if_error(res) );
-    /// ```
-    pub fn custom_response_replace(
-        mut self,
-        label: &str,
-        f: impl Fn(&ServiceResponse) -> String + 'static,
-    ) -> Self {
-        let inner = Rc::get_mut(&mut self.0).unwrap();
-
-        let ft = inner.format.0.iter_mut().find(
-            |ft| matches!(ft, FormatText::CustomResponse(unit_label, _) if label == unit_label),
-        );
-
-        if let Some(FormatText::CustomResponse(_, res_fn)) = ft {
-            *res_fn = Some(CustomResponseFn {
-                inner_fn: Rc::new(f),
-            });
-        } else {
-            debug!(
-                "Attempted to register custom response logging function for non-existent label: {}",
-                label
-            );
-        }
-
-        self
-    }
 }
 
 impl Default for Logger {
-    /// Create `Logger` middleware with format:
-    ///
-    /// ```plain
-    /// %a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T
-    /// ```
     fn default() -> Logger {
         Logger(Rc::new(Inner {
             format: Format::default(),
@@ -419,7 +254,7 @@ pin_project! {
 
                 log::info!(
                     target: this.log_target.as_ref(),
-                    "{}", FormatDisplay(&render)
+                    "-- {}", FormatDisplay(&render)
                 );
             }
         }

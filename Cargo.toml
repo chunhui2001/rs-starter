@@ -13,13 +13,22 @@ edition = "2021"
 env_logger = "0.8"
 log = "0.4"
 actix-web = { version = "4", features = ["openssl"] }
+actix-service = { version = "2.0.2" }
+actix-utils = { version = "3.0.1" }
+bytes = { version = "1.2.1" }
 actix-cors= { version = "0.6.4" }
 actix-files = { version = "0.6.2" }
 openssl = { version = "0.10" }
 futures = { version = "0.3.25" }
+futures-core = { version = "0.3.25" }
+futures-util = { version = "0.3.25" }
 derive_more = { version = "0.99.17" }
 serde = "1.0.136"
 dotenv = "0.15.0"
+pin-project-lite = "0.2.7"
+regex = "1.5.5"
+
+time = { version = "0.3", default-features = false, features = ["formatting"] }
 
 [dependencies.mongodb]
 version = "2.2.0"
