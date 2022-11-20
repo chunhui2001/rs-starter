@@ -116,6 +116,8 @@ async fn main() -> std::io::Result<()> {
     let db = MongoRepo::init().await;
     let db_data = Data::new(db);
 
+    log::info!("booting up");
+        
     HttpServer::new(move || {
     
         let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms")
@@ -150,8 +152,6 @@ async fn main() -> std::io::Result<()> {
             .route("/hey", web::get().to(manual_hello))
             .route("/about", web::get().to(about))
             .route("/throw-error", web::get().to(about))
-
-        log::info!("booting up");
     
     })
     .keep_alive(Duration::from_secs(75))
