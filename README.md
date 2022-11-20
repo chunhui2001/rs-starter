@@ -1,13 +1,17 @@
 ﻿# rs-starter
 
+### install rust development environment
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+### cargo-watch 用于监控项目中的文件变化并运行命令。
+$ cargo install cargo-watch
+
+### 创建项目
 $ cargo new hello-rocket --bin
 $ cd hello-rocket
 
 [dependencies]
 rocket = "0.5.0-rc.2"
-
-### install rust development environment
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 
 ### crate
@@ -30,6 +34,11 @@ https://blog.csdn.net/kakadiablo/article/details/115400316
 ### 打包和分发一个 Rust 工具
 http://llever.com/cli-wg-zh/tutorial/packaging.zh.html
 
+https://msfjarvis.dev/posts/building-static-rust-binaries-for-linux/
+
+### Rust 入门指南（crate 管理）
+https://zhuanlan.zhihu.com/p/546235064
+
 ### Rust日常开发中的倚天屠龙
 https://zhuanlan.zhihu.com/p/451494651?utm_id=0
 
@@ -43,7 +52,7 @@ https://blog.logrocket.com/building-rest-api-rust-rhai-actix-web/
 https://api.rocket.rs/
 https://api.rocket.rs/v0.4/rocket/http/struct.ContentType.html
 
-## Create a blazingly fast REST API in Rust (Part 1/2)
+### Create a blazingly fast REST API in Rust (Part 1/2)
 https://hub.qovery.com/guides/tutorial/create-a-blazingly-fast-api-in-rust-part-1/
 
 https://github.com/blurbyte/restful-rust
@@ -51,8 +60,11 @@ https://github.com/grizwako/rust-websocket-chat-server
 https://github.com/steelx/rust-rocket-chat-app
 
 
+### rust Configure Logging
+https://rust-lang-nursery.github.io/rust-cookbook/development_tools/debugging/config_log.html
 https://docs.rs/log4rs/1.2.0/log4rs/
 https://docs.rs/log4rs/latest/log4rs/
+https://docs.rs/log4rs/latest/log4rs/encode/pattern/
 https://github.com/qoollo/rust-log4rs-logstash
 https://docs.rs/actix-web/latest/actix_web/middleware/struct.Logger.html
 https://medium.com/nikmas-group-rust/advanced-logging-in-rust-with-log4rs-2d712bb322de

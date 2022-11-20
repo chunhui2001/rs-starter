@@ -11,7 +11,9 @@ edition = "2021"
 
 [dependencies]
 env_logger = "0.8"
-log = "0.4"
+log = "0.4.17"
+chrono = "0.4.23"
+log4rs = "1.2.0"
 actix-web = { version = "4", features = ["openssl"] }
 actix-service = { version = "2.0.2" }
 actix-utils = { version = "3.0.1" }

@@ -5,17 +5,24 @@ mod repository;
 
 use std::io;
 use std::time::Duration;
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+// use std::io::Write;
+
+// use chrono::Local;
+// use log::LevelFilter;
+use log4rs;
+use futures::{future::ok, stream::once};
+use derive_more::{Display, Error};
+
 use actix_cors::Cors;
 use actix_web::http::{StatusCode};
 use actix_web::{http, get, post, web, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
-use futures::{future::ok, stream::once};
-use derive_more::{Display, Error};
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+
+use middleware::access_filter::Logger;
 
 use services::user_service::{create_user, get_user, update_user, delete_user, get_all_users};
 use repository::mongodb_repo::MongoRepo;
-use middleware::access_filter::Logger;
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -72,7 +79,7 @@ async fn errors() -> Result<&'static str, MyError> {
 #[get("/throw-error/{id}")]
 async fn throw_error(id: web::Path<u32>) -> Result<HttpResponse, MyError> {
     let user_id: u32 = id.into_inner();
-    println!("{}", user_id);
+    log::info!("userId: {}", user_id);
     Err(MyError { name: "MyError,粗欧文" })
 }
 
@@ -97,11 +104,10 @@ async fn not_found() -> Result<HttpResponse> {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    std::env::set_var("RUST_LOG", "info");
-    std::env::set_var("RUST_BACKTRACE", "1");
-
-    env_logger::init();
-
+    // std::env::set_var("RUST_LOG", "info");
+    // std::env::set_var("RUST_BACKTRACE", "1");
+    
+    log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
 
     builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
@@ -126,7 +132,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(db_data.clone())
             .wrap(cors)
-            .wrap(logger) // This is a basic example using middleware::Logger which depends on env_logger and log
+            .wrap(logger)
             .service(favicon)
             .service(favicon_svg)
             .service(hello)
@@ -146,6 +152,8 @@ async fn main() -> std::io::Result<()> {
             .route("/hey", web::get().to(manual_hello))
             .route("/about", web::get().to(about))
             .route("/throw-error", web::get().to(about))
+
+        log::info!("booting up");
     
     })
     .keep_alive(Duration::from_secs(75))
@@ -155,3 +163,4 @@ async fn main() -> std::io::Result<()> {
     .await
 
 }
+

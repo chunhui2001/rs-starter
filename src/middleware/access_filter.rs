@@ -221,6 +221,7 @@ where
         let time = *this.time;
         let format = this.format.take();
         let log_target = this.log_target.clone();
+        let status_code = res.status().as_u16();
 
         Poll::Ready(Ok(res.map_body(move |_, body| StreamLog {
             body,
@@ -228,11 +229,13 @@ where
             format,
             size: 0,
             log_target,
+            status_code,
         })))
     }
 }
 
 pin_project! {
+    
     pub struct StreamLog<B> {
         #[pin]
         body: B,
@@ -240,6 +243,7 @@ pin_project! {
         size: usize,
         time: OffsetDateTime,
         log_target: Cow<'static, str>,
+        status_code: u16,
     }
 
     impl<B> PinnedDrop for StreamLog<B> {
@@ -252,10 +256,22 @@ pin_project! {
                     Ok(())
                 };
 
-                log::info!(
-                    target: this.log_target.as_ref(),
-                    "-- {}", FormatDisplay(&render)
-                );
+                if this.status_code >= 200 && this.status_code <= 300 {
+                    log::info!(
+                        target: this.log_target.as_ref(),
+                        "Access {}", FormatDisplay(&render)
+                    );
+                } else if this.status_code == 404 || this.status_code == 401 {
+                    log::warn!(
+                        target: this.log_target.as_ref(),
+                        "Access {}", FormatDisplay(&render)
+                    );
+                } else {
+                    log::error!(
+                        target: this.log_target.as_ref(),
+                        "Access {}", FormatDisplay(&render)
+                    );
+                }
             }
         }
     }
