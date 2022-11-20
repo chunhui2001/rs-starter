@@ -113,14 +113,12 @@ async fn main() -> std::io::Result<()> {
     builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
     builder.set_certificate_chain_file("cert.pem").unwrap();
 
-
     let db = MongoRepo::init().await;
     let db_data = Data::new(db);
 
     HttpServer::new(move || {
     
         let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms")
-                           // .log_target("http_log")
                            .exclude("/favicon.ico");
 
         let cors = Cors::default()
