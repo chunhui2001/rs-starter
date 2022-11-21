@@ -16,7 +16,7 @@ build:
 	@# cargo build --release --target x86_64-unknown-linux-musl
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release
 
-serve:
+serve: build
 	@#./target/debug/rs-starter
 	RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/release/rs-starter
 
@@ -30,4 +30,4 @@ tls:
 ### benchmark
 # make load n=10000 p=info
 load:
-	ab -n 10000 -c 10 "http://127.0.0.1:8000/"
+	ab -n 10000 -c 10 "http://127.0.0.1:8000/hey/"

@@ -3,11 +3,10 @@ name = "rs-starter"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-#[dependencies]
-#rocket = "0.5.0-rc.2"
-#rocket-include-static-resources = "0.10.3"
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
 
 [dependencies]
 env_logger = "0.8"
@@ -29,8 +28,10 @@ serde = "1.0.136"
 dotenv = "0.15.0"
 pin-project-lite = "0.2.7"
 regex = "1.5.5"
+human-repr = "1"
+humantime = "2.1.0"
 
-time = { version = "0.3", default-features = false, features = ["formatting"] }
+time = { version = "0.3.17", default-features = false, features = ["formatting"] }
 
 [dependencies.mongodb]
 version = "2.2.0"

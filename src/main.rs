@@ -14,6 +14,7 @@ use futures::{future::ok, stream::once};
 use derive_more::{Display, Error};
 
 use actix_cors::Cors;
+use actix_web::web::ServiceConfig;
 use actix_web::http::{StatusCode};
 use actix_web::{http, get, post, web, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
@@ -101,6 +102,24 @@ async fn not_found() -> Result<HttpResponse> {
         .body("<h1>404 - Page not found</h1>"))
 }
 
+/// Enables serving static files.
+#[cfg(feature = "static")]
+pub fn static_handler(config: &mut ServiceConfig) {
+    let static_path =
+        std::env::var("STATIC_ROOT").expect("Running in debug without STATIC_ROOT set!");
+
+    let fs = actix_files::Files::new("/static", &static_path);
+    config.service(fs);
+} 
+
+pub fn static_handler(config: &mut ServiceConfig) {
+    // let static_path =
+    //     std::env::var("STATIC_ROOT").expect("Running in debug without STATIC_ROOT set!");
+    let static_path = "static";
+    let fs = actix_files::Files::new("/static", &static_path);
+    config.service(fs);
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
@@ -120,7 +139,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
     
-        let logger = Logger::new("%{r}a \"%r\" %s %b/bytes %Dms")
+        let logger = Logger::new("%{r}a \"%r\" %s %b %D")
                            .exclude("/favicon.ico");
 
         let cors = Cors::default()
@@ -152,6 +171,7 @@ async fn main() -> std::io::Result<()> {
             .route("/hey", web::get().to(manual_hello))
             .route("/about", web::get().to(about))
             .route("/throw-error", web::get().to(about))
+            .configure(static_handler)
     
     })
     .keep_alive(Duration::from_secs(75))

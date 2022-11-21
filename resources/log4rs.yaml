@@ -9,8 +9,8 @@ appenders:
   file:
     kind: file
     path: "/tmp/log/requests.log"
-    #encoder:
-    #  pattern: "{d} | {({1}):5.5} | {f}:{L} - {m}{n}"
+    encoder:
+      pattern: "{d(%Y-%m-%dT%H:%M:%S%Z)} {({l}):5.5} [{f}:{L}] - {m}{n}"
 root:
   level: info
   appenders:

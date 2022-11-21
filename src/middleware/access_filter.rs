@@ -18,7 +18,10 @@ use futures_core::ready;
 use log::{debug, warn};
 use pin_project_lite::pin_project; 
 use regex::{Regex, RegexSet};
+use std::time::Duration;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
+use humantime::format_duration;
+use human_repr::HumanCount;
 
 use actix_web::body::{BodySize, MessageBody};
 use actix_web::{ dev::{Service, ServiceRequest, ServiceResponse, Transform}, http::header::HeaderName, Error, Result }; 
@@ -443,16 +446,22 @@ impl FormatText {
         match self {
             FormatText::Str(ref string) => fmt.write_str(string),
             FormatText::Percent => "%".fmt(fmt),
-            FormatText::ResponseSize => size.fmt(fmt),
+            FormatText::ResponseSize => {
+                size.human_count_bytes().fmt(fmt)
+                // size.fmt(fmt)
+            },
             FormatText::Time => {
                 let rt = OffsetDateTime::now_utc() - entry_time;
                 let rt = rt.as_seconds_f64();
-                fmt.write_fmt(format_args!("{:.6}", rt))
+                fmt.write_fmt(format_args!("{:.6}s", rt))
             }
             FormatText::TimeMillis => {
                 let rt = OffsetDateTime::now_utc() - entry_time;
-                let rt = (rt.whole_nanoseconds() as f64) / 1_000_000.0;
-                fmt.write_fmt(format_args!("{:.6}", rt))
+                // 1秒=1000毫秒(ms),          1毫秒=1／1000秒 
+                // 1秒=1000000微秒(μs OR us), 1微秒=1／1000000秒
+                // 1秒=1000000000纳秒(ns),    1纳秒=1／1000000000秒
+                // 1秒=1000000000000皮秒,     1皮秒=1／1000000000000秒
+                format_duration(Duration::from_nanos(rt.whole_nanoseconds() as u64)).fmt(fmt)
             }
             FormatText::EnvironHeader(ref name) => {
                 if let Ok(val) = env::var(name) {

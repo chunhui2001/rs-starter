@@ -88,6 +88,12 @@ https://livebook.manning.com/book/rust-servers-services-and-apps/chapter-5/v-12/
 https://docs.rs/actix-web/0.5.3/actix_web/middleware/struct.ErrorHandlers.html
 https://dev.to/chaudharypraveen98/error-handling-in-actix-web-4mm
 
+### time
+https://github.com/tailhook/humantime
+https://doc.rust-lang.org/stable/std/time/struct.Duration.html
+https://crates.io/crates/duration-string
+https://docs.rs/human-repr/1.0.1/human_repr/
+
 
 
 
