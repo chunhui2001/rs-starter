@@ -8,7 +8,7 @@ install:
 	cargo install
 
 run: clear
-	cargo run --bin rs-starter
+	RUST_BACKTRACE=1 cargo run --bin rs-starter
 	@#RUST_BACKTRACE=1 RUST_LOG=actix_web=info cargo run --bin rs-starter
 	@#RUST_BACKTRACE=1 RUST_LOG=actix_web=info cargo-watch -x run --bin rs-starter
 

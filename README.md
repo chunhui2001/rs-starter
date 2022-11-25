@@ -46,7 +46,7 @@ https://zhuanlan.zhihu.com/p/451494651?utm_id=0
 https://actix.rs/
 https://github.com/actix/actix-extras
 https://blog.logrocket.com/building-rest-api-rust-rhai-actix-web/
-
+https://actix.rs/docs/url-dispatch/
 
 ### api doc
 https://api.rocket.rs/
@@ -95,6 +95,9 @@ https://docs.rs/human-repr/1.0.1/human_repr/
 
 ### Day12:Write web app with actix-web - 100DayOfRust
 https://dev.to/0xbf/day11-write-web-app-with-actix-web-100dayofrust-1lkn
+
+### Asyncifying an Actix Web App and Upgrading it to 1.0
+https://www.zupzup.org/asyncify-rust-webapp/
 
 ### template
 https://tera.netlify.app/docs/

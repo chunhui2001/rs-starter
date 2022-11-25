@@ -3,6 +3,10 @@ name = "rs-starter"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "mainlib"
+path = "src/server.rs"
+
 [profile.release]
 codegen-units = 1
 lto = true
