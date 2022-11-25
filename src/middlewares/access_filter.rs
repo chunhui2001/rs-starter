@@ -56,14 +56,14 @@ impl Logger {
         self
     }
 
-    // pub fn exclude_regex<T: Into<String>>(mut self, path: T) -> Self {
-    //     let inner = Rc::get_mut(&mut self.0).unwrap();
-    //     let mut patterns = inner.exclude_regex.patterns().to_vec();
-    //     patterns.push(path.into());
-    //     let regex_set = RegexSet::new(patterns).unwrap();
-    //     inner.exclude_regex = regex_set;
-    //     self
-    // }
+    pub fn exclude_regex<T: Into<String>>(mut self, path: T) -> Self {
+        let inner = Rc::get_mut(&mut self.0).unwrap();
+        let mut patterns = inner.exclude_regex.patterns().to_vec();
+        patterns.push(path.into());
+        let regex_set = RegexSet::new(patterns).unwrap();
+        inner.exclude_regex = regex_set;
+        self
+    }
 
     // pub fn log_target(mut self, target: impl Into<Cow<'static, str>>) -> Self {
     //     let inner = Rc::get_mut(&mut self.0).unwrap();
@@ -259,18 +259,13 @@ pin_project! {
                     Ok(())
                 };
 
-                if this.status_code >= 200 && this.status_code <= 300 {
-                    log::info!(
-                        target: this.log_target.as_ref(),
-                        "Access {}", FormatDisplay(&render)
-                    );
-                } else if this.status_code == 404 || this.status_code == 401 {
-                    log::warn!(
+                if this.status_code >= 500 {
+                    log::error!(
                         target: this.log_target.as_ref(),
                         "Access {}", FormatDisplay(&render)
                     );
                 } else {
-                    log::error!(
+                    log::info!(
                         target: this.log_target.as_ref(),
                         "Access {}", FormatDisplay(&render)
                     );

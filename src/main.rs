@@ -3,8 +3,7 @@ mod services;
 mod models;
 mod repository;
 
-use std::io;
-use std::{time::Duration};
+use std::{io, time::Duration};
 
 use log4rs;
 use futures::{future::ok, stream::once};
@@ -123,7 +122,7 @@ pub fn access_limiter() -> RateLimiter<InMemoryBackend, SimpleOutput, impl Fn(&S
 }
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
+async fn main() {
 
     // std::env::set_var("RUST_LOG", "info");
     // std::env::set_var("RUST_BACKTRACE", "1");
@@ -136,9 +135,14 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
     
-        let logger = Logger::new("%{r}a \"%r\" %s %b %D").exclude("/favicon.ico");
+        let logger = Logger::new("%{r}a \"%r\" %s %b %D")
+            .exclude("/favicon.ico")
+            .exclude("/favicon.svg")
+            .exclude_regex("^/static")
+        ;
 
         App::new()
+            .configure(static_handler)
             .app_data(db_data.clone())
             .wrap(cors())
             .wrap(logger)
@@ -174,13 +178,15 @@ async fn main() -> std::io::Result<()> {
             .default_service(
                 web::route().to(not_found)
             )
-            .configure(static_handler)
     
     })
     .keep_alive(Duration::from_secs(75))
-    .bind(("127.0.0.1", 8000))?
-    .bind_openssl("127.0.0.1:8443", tls_builder())?
+    .bind(("127.0.0.1", 8000))
+    .expect("Failed to bind to port: 8000")
+    .bind_openssl("127.0.0.1:8443", tls_builder())
+    .expect("Failed to bind to port: 8443")
     .run()
     .await
+    .expect("Failed to run server")
 
 }
