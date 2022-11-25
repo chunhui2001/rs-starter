@@ -44,8 +44,8 @@ https://zhuanlan.zhihu.com/p/451494651?utm_id=0
 
 ### actix-web
 https://actix.rs/
+https://github.com/actix/actix-extras
 https://blog.logrocket.com/building-rest-api-rust-rhai-actix-web/
-
 
 
 ### api doc
@@ -80,7 +80,6 @@ https://auth0.com/blog/build-an-api-in-rust-with-jwt-authentication-using-actix-
 https://users.rust-lang.org/t/error-404-unfound-routes-actix-web/46484/3
 
 https://github.com/secretkeysio/jelly-actix-web-starter
-https://github.com/Keats/tera
 
 ### rust-servers-services-and-apps
 # 5 Handling errors
@@ -93,6 +92,31 @@ https://github.com/tailhook/humantime
 https://doc.rust-lang.org/stable/std/time/struct.Duration.html
 https://crates.io/crates/duration-string
 https://docs.rs/human-repr/1.0.1/human_repr/
+
+### Day12:Write web app with actix-web - 100DayOfRust
+https://dev.to/0xbf/day11-write-web-app-with-actix-web-100dayofrust-1lkn
+
+### template
+https://tera.netlify.app/docs/
+https://github.com/Keats/tera
+
+### validator
+https://github.com/rambler-digital-solutions/actix-web-validator
+https://dev.to/chaudharypraveen98/form-validation-in-rust-404l
+
+https://docs.rs/actix-ratelimit/latest/actix_ratelimit/
+https://blog.logrocket.com/the-state-of-rust-http-clients/
+
+
+
+
+
+
+
+
+
+
+
 
 
 

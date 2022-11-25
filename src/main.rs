@@ -1,4 +1,4 @@
-mod middleware;
+mod middlewares;
 mod services;
 mod models;
 mod repository;
@@ -16,11 +16,11 @@ use derive_more::{Display, Error};
 use actix_cors::Cors;
 use actix_web::web::ServiceConfig;
 use actix_web::http::{StatusCode};
-use actix_web::{http, get, post, web, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{http, get, web, middleware, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
-use middleware::access_filter::Logger;
+use middlewares::access_filter::Logger;
 
 use services::user_service::{create_user, get_user, update_user, delete_user, get_all_users};
 use repository::mongodb_repo::MongoRepo;
@@ -45,28 +45,22 @@ async fn favicon_svg(_req: HttpRequest) -> io::Result<NamedFile> {
     Ok(NamedFile::open("static/favicon.svg")?)
 }
 
-#[get("/")]
-async fn hello() -> impl Responder {
+async fn index() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
 
-#[post("/echo")]
 async fn echo(req_body: String) -> impl Responder {
     HttpResponse::Ok().body(req_body)
 }
 
-#[get("/readme")]
 async fn readme(_req: HttpRequest) -> io::Result<NamedFile> {
     Ok(NamedFile::open("README.md")?)
 }
 
 // Response body can be generated asynchronously. 
 // In this case, body must implement the stream trait Stream<Item=Bytes, Error=Error>, i.e.:
-#[get("/stream")]
 async fn stream() -> HttpResponse {
-
     let body = once(ok::<_, Error>(web::Bytes::from_static(b"test")));
-
     HttpResponse::Ok()
         .content_type("text/plain;charset=utf-8")
         .streaming(body)
@@ -90,10 +84,10 @@ async fn about() -> Result<HttpResponse> {
         .body("<h1>About</h1>"))
 }
 
-async fn manual_hello() -> impl Responder {
-    HttpResponse::Ok()
-    .content_type("text/plain;charset=utf-8")
-    .body("Hey there! 啊啊送积分啦；送积分啦")
+async fn dashboard() -> Result<HttpResponse> {
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type("text/html;charset=utf-8")
+        .body("<h1>Dashboard</h1>"))
 }
 
 async fn not_found() -> Result<HttpResponse> {
@@ -150,25 +144,37 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .app_data(db_data.clone())
+            .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
             .wrap(cors)
             .wrap(logger)
             .service(favicon)
             .service(favicon_svg)
-            .service(hello)
-            .service(echo)
-            .service(stream)
-            .service(readme)
+            .route("/", web::get().to(index))
+            .route("/index", web::get().to(index))
+            .route("/home", web::get().to(index))
+            .route("/stream", web::get().to(stream))
+            .route("/readme", web::get().to(readme))
+            .route("/echo", web::post().to(echo))
+            // user
             .service(create_user)
             .service(get_user)
             .service(update_user)
             .service(delete_user)
             .service(get_all_users)
+            .service(
+                web::scope("/developer")
+                    // .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
+                    .route("/", web::get().to(dashboard))
+                    .route("/index", web::get().to(dashboard))
+                    .route("/home", web::get().to(dashboard))
+            )
+            // error
             .service(errors)
             .service(throw_error)
             .default_service(
                 web::route().to(not_found)
             )
-            .route("/hey", web::get().to(manual_hello))
+            .route("/hey", web::get().to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
             .route("/about", web::get().to(about))
             .route("/throw-error", web::get().to(about))
             .configure(static_handler)
