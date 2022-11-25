@@ -4,11 +4,8 @@ mod models;
 mod repository;
 
 use std::io;
-use std::time::Duration;
-// use std::io::Write;
+use std::{time::Duration};
 
-// use chrono::Local;
-// use log::LevelFilter;
 use log4rs;
 use futures::{future::ok, stream::once};
 use derive_more::{Display, Error};
@@ -18,6 +15,7 @@ use actix_web::web::ServiceConfig;
 use actix_web::http::{StatusCode};
 use actix_web::{http, get, web, middleware, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
+use actix_extensible_rate_limit::{backend::memory::InMemoryBackend, backend::SimpleInputFunctionBuilder, RateLimiter};
 use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 use middlewares::access_filter::Logger;
@@ -66,6 +64,11 @@ async fn stream() -> HttpResponse {
         .streaming(body)
 }
 
+async fn greet(req: HttpRequest) -> impl Responder{
+    let name = req.match_info().get("name").unwrap_or("World!");
+    format!("Hello {}!", &name)
+}
+
 #[get("/errors")]
 async fn errors() -> Result<&'static str, MyError> {
     Err(MyError { name: "MyError,粗欧文" })
@@ -96,16 +99,6 @@ async fn not_found() -> Result<HttpResponse> {
         .body("<h1>404 - Page not found</h1>"))
 }
 
-/// Enables serving static files.
-#[cfg(feature = "static")]
-pub fn static_handler(config: &mut ServiceConfig) {
-    let static_path =
-        std::env::var("STATIC_ROOT").expect("Running in debug without STATIC_ROOT set!");
-
-    let fs = actix_files::Files::new("/static", &static_path);
-    config.service(fs);
-} 
-
 pub fn static_handler(config: &mut ServiceConfig) {
     // let static_path =
     //     std::env::var("STATIC_ROOT").expect("Running in debug without STATIC_ROOT set!");
@@ -126,6 +119,8 @@ async fn main() -> std::io::Result<()> {
     builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
     builder.set_certificate_chain_file("cert.pem").unwrap();
 
+    // let store = MemoryStore::new();
+
     let db = MongoRepo::init().await;
     let db_data = Data::new(db);
 
@@ -142,11 +137,18 @@ async fn main() -> std::io::Result<()> {
               .allowed_header(http::header::CONTENT_TYPE)
               .max_age(3600);
 
+        let access_limiter = RateLimiter::builder(
+            InMemoryBackend::builder().build(), 
+            SimpleInputFunctionBuilder::new(Duration::from_secs(1), 5).real_ip_key().build()
+        ).add_headers().build();
+
         App::new()
+            .route("/", web::get().to(greet))
             .app_data(db_data.clone())
-            .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
             .wrap(cors)
             .wrap(logger)
+            .wrap(access_limiter)
+            .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
             .service(favicon)
             .service(favicon_svg)
             .route("/", web::get().to(index))
@@ -163,7 +165,8 @@ async fn main() -> std::io::Result<()> {
             .service(get_all_users)
             .service(
                 web::scope("/developer")
-                    // .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
+                    // .wrap(RateLimiter::default())
+                    // .app_data(limiter.clone())
                     .route("/", web::get().to(dashboard))
                     .route("/index", web::get().to(dashboard))
                     .route("/home", web::get().to(dashboard))
@@ -187,4 +190,3 @@ async fn main() -> std::io::Result<()> {
     .await
 
 }
-

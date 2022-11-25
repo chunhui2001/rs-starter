@@ -30,7 +30,7 @@ pin-project-lite = "0.2.7"
 regex = "1.5.5"
 human-repr = "1"
 humantime = "2.1.0"
-actix-ratelimit = "0.3.1"
+actix-extensible-rate-limit = "0.2.1"
 
 time = { version = "0.3.17", default-features = false, features = ["formatting"] }
 
