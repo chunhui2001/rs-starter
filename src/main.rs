@@ -146,7 +146,6 @@ async fn main() {
             .app_data(db_data.clone())
             .wrap(cors())
             .wrap(logger)
-            //.wrap(access_limiter())
             .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
             .service(favicon)
             .service(favicon_svg)
