@@ -12,11 +12,10 @@ use derive_more::{Display, Error};
 
 use actix_cors::Cors;
 use actix_web::web::ServiceConfig;
-use actix_web::http::{StatusCode};
-use actix_web::{http, get, web, middleware, error, web::Data, App, Error, Result, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{http, get, web, middleware, error, web::Data, App, Error, Result, dev::ServiceRequest, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_files::NamedFile;
-use actix_extensible_rate_limit::{backend::memory::InMemoryBackend, backend::SimpleInputFunctionBuilder, RateLimiter};
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
+use actix_extensible_rate_limit::{backend::memory::InMemoryBackend, backend::SimpleInputFunctionBuilder, backend::SimpleInput, backend::SimpleOutput, RateLimiter};
+use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod, SslAcceptorBuilder};
 
 use middlewares::access_filter::Logger;
 
@@ -64,17 +63,11 @@ async fn stream() -> HttpResponse {
         .streaming(body)
 }
 
-async fn greet(req: HttpRequest) -> impl Responder{
-    let name = req.match_info().get("name").unwrap_or("World!");
-    format!("Hello {}!", &name)
-}
-
 #[get("/errors")]
 async fn errors() -> Result<&'static str, MyError> {
     Err(MyError { name: "MyError,粗欧文" })
 }
 
-#[get("/throw-error/{id}")]
 async fn throw_error(id: web::Path<u32>) -> Result<HttpResponse, MyError> {
     let user_id: u32 = id.into_inner();
     log::info!("userId: {}", user_id);
@@ -82,19 +75,19 @@ async fn throw_error(id: web::Path<u32>) -> Result<HttpResponse, MyError> {
 }
 
 async fn about() -> Result<HttpResponse> {
-    Ok(HttpResponse::build(StatusCode::OK)
+    Ok(HttpResponse::build(http::StatusCode::OK)
         .content_type("text/html;charset=utf-8")
         .body("<h1>About</h1>"))
 }
 
-async fn dashboard() -> Result<HttpResponse> {
-    Ok(HttpResponse::build(StatusCode::OK)
+async fn developer() -> Result<HttpResponse> {
+    Ok(HttpResponse::build(http::StatusCode::OK)
         .content_type("text/html;charset=utf-8")
-        .body("<h1>Dashboard</h1>"))
+        .body("<h1>Developer</h1>"))
 }
 
 async fn not_found() -> Result<HttpResponse> {
-    Ok(HttpResponse::build(StatusCode::OK)
+    Ok(HttpResponse::build(http::StatusCode::OK)
         .content_type("text/html;charset=utf-8")
         .body("<h1>404 - Page not found</h1>"))
 }
@@ -107,6 +100,28 @@ pub fn static_handler(config: &mut ServiceConfig) {
     config.service(fs);
 }
 
+pub fn tls_builder() -> SslAcceptorBuilder {
+    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
+    builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
+    builder.set_certificate_chain_file("cert.pem").unwrap();
+    return builder
+}
+
+pub fn cors() -> Cors{
+    return Cors::default()
+    .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
+    .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+    .allowed_header(http::header::CONTENT_TYPE)
+    .max_age(3600);
+}
+
+pub fn access_limiter() -> RateLimiter<InMemoryBackend, SimpleOutput, impl Fn(&ServiceRequest) -> std::future::Ready<Result<SimpleInput, Error>>>{
+    return RateLimiter::builder(
+        InMemoryBackend::builder().build(), 
+        SimpleInputFunctionBuilder::new(Duration::from_secs(1), 5).real_ip_key().build()
+    ).add_headers().build();
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
@@ -114,40 +129,20 @@ async fn main() -> std::io::Result<()> {
     // std::env::set_var("RUST_BACKTRACE", "1");
     
     log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();
-    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
 
-    builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
-    builder.set_certificate_chain_file("cert.pem").unwrap();
-
-    // let store = MemoryStore::new();
-
-    let db = MongoRepo::init().await;
-    let db_data = Data::new(db);
+    let db_data = Data::new(MongoRepo::init().await);
 
     log::info!("booting up");
 
     HttpServer::new(move || {
     
-        let logger = Logger::new("%{r}a \"%r\" %s %b %D")
-                           .exclude("/favicon.ico");
-
-        let cors = Cors::default()
-              .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
-              .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-              .allowed_header(http::header::CONTENT_TYPE)
-              .max_age(3600);
-
-        let access_limiter = RateLimiter::builder(
-            InMemoryBackend::builder().build(), 
-            SimpleInputFunctionBuilder::new(Duration::from_secs(1), 5).real_ip_key().build()
-        ).add_headers().build();
+        let logger = Logger::new("%{r}a \"%r\" %s %b %D").exclude("/favicon.ico");
 
         App::new()
-            .route("/", web::get().to(greet))
             .app_data(db_data.clone())
-            .wrap(cors)
+            .wrap(cors())
             .wrap(logger)
-            .wrap(access_limiter)
+            //.wrap(access_limiter())
             .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
             .service(favicon)
             .service(favicon_svg)
@@ -157,35 +152,34 @@ async fn main() -> std::io::Result<()> {
             .route("/stream", web::get().to(stream))
             .route("/readme", web::get().to(readme))
             .route("/echo", web::post().to(echo))
+            .route("/hey", web::get().to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
+            .route("/about", web::get().to(about))
+            .route("/throw-error/{id}", web::get().to(throw_error))
             // user
             .service(create_user)
             .service(get_user)
             .service(update_user)
             .service(delete_user)
             .service(get_all_users)
+            // developers
             .service(
                 web::scope("/developer")
-                    // .wrap(RateLimiter::default())
-                    // .app_data(limiter.clone())
-                    .route("/", web::get().to(dashboard))
-                    .route("/index", web::get().to(dashboard))
-                    .route("/home", web::get().to(dashboard))
+                    .wrap(access_limiter())
+                    .route("", web::get().to(developer))
+                    .route("/index", web::get().to(developer))
+                    .route("/home", web::get().to(developer))
             )
-            // error
+            // error handle
             .service(errors)
-            .service(throw_error)
             .default_service(
                 web::route().to(not_found)
             )
-            .route("/hey", web::get().to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
-            .route("/about", web::get().to(about))
-            .route("/throw-error", web::get().to(about))
             .configure(static_handler)
     
     })
     .keep_alive(Duration::from_secs(75))
     .bind(("127.0.0.1", 8000))?
-    .bind_openssl("127.0.0.1:8443", builder)?
+    .bind_openssl("127.0.0.1:8443", tls_builder())?
     .run()
     .await
 
