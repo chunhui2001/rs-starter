@@ -1,18 +1,45 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        {% block head %}
-        <link rel="stylesheet" href="/static/style.css" />
-        <title>{% block title %}DEFAULT_TITLE{% endblock title %} - My Webpage</title>
-        {% endblock head %}
-    </head>
-    <body>
-        <div id="content">{% block content %}{% endblock content %}</div>
-        <div id="footer">
-            {% block footer %}
-            &copy; Copyright 2022 by <a href="http://domain.invalid/">Keesh</a>.
-            {% endblock footer %}
-        </div>
-    </body>
+
+<head>
+    <meta charset="utf-8">
+    {% block head %}
+    <link rel="stylesheet" href="/static/reset.css" />
+    <link rel="stylesheet" href="/static/site.css" />
+    <title>{% block title %}DEFAULT_TITLE{% endblock title %} - My Webpage</title>
+    {% endblock head %}
+</head>
+
+<body>
+    <div id="header">
+        <header>
+            <ul>
+                <li style="border-right: solid 1px #EAEAEA;">
+                    <a href="/" style="padding:0 10px;">
+                        <span style="width:60px;display:inline-block;padding:12px;"><img src="/static/favicon.svg" /></span>
+                    </a>
+                </li>
+                <li class="hover-highlight" style="border-right: solid 1px #EAEAEA;">
+                    <a href="/readme" style="height:100%;"><span>Developer</span></a>
+                </li>
+                <li><a href="/readme" style="height:100%;"><span>GraphQl</span></a></li>
+                <li><a href="/readme" style="height:100%;"><span>Chat</span></a></li>
+                <li><a href="/readme" style="height:100%;"><span>WebSocket</span></a></li>
+                <li style="margin-right:auto;">
+                    <a href="/readme" style="height:100%;">
+                        <span>Partners</span>
+                    </a>
+                </li>
+                <li><a href="/login" style="height:100%;"><span>Login</span></a></li>
+            </ul>
+        </header>
+    </div>
+    <div id="content">{% block content %}{% endblock content %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2022 by <a href="http://domain.invalid/">chunhui2001@gmail.com</a>.
+        {% endblock footer %}
+    </div>
+</body>
+
 </html>

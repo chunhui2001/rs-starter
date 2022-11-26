@@ -83,7 +83,7 @@ h1 {
     font-size: 2em
 }
 
-:where(ul, ol)[role="list"] {
+:where(ul, ol)[role="list"], ul {
     list-style: none
 }
 
