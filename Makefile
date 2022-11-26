@@ -2,15 +2,15 @@
 ### 当前 Makefile 文件物理路径
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
+zone 		?=UTC
+
 # 仅用于安装二进制包
 install:
 	@#cargo install sqlx-cli --no-default-features --features postgres
 	cargo install
 
 run: clear
-	RUST_BACKTRACE=1 cargo run --bin rs-starter
-	@#RUST_BACKTRACE=1 RUST_LOG=actix_web=info cargo run --bin rs-starter
-	@#RUST_BACKTRACE=1 RUST_LOG=actix_web=info cargo-watch -x run --bin rs-starter
+	TZ=$(zone) RUST_BACKTRACE=1 RUST_LOG=actix_web=debug cargo run --bin rs-starter
 
 build:
 	@# cargo build --release --target x86_64-unknown-linux-musl
