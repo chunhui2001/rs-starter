@@ -1999,6 +1999,7 @@ dependencies = [
  "futures-util",
  "human-repr",
  "humantime",
+ "lazy_static",
  "log",
  "log4rs",
  "mongodb",

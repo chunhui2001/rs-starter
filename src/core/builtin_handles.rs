@@ -11,6 +11,9 @@ use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod, SslAcceptorBuilder};
 
 use tera::{Tera, Context};
 
+use lazy_static::lazy_static;
+use regex::Regex;
+
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -24,6 +27,51 @@ impl error::ResponseError for MyError {}
 pub struct AppData {
     pub tmpl: Tera
 }
+
+
+/// Prettify HTML input
+pub fn prettify(input: &str) -> String {
+
+    lazy_static! {
+        static ref OPEN_TAG: Regex = Regex::new("(?P<tag><[A-z])").unwrap();
+        static ref EMPTY_LINE: Regex = Regex::new("(\\s*\n){1,}").unwrap();
+        static ref CLOSE_TAG: Regex = Regex::new("([^>\n]\\s*</)").unwrap();
+    }
+
+    // First get all tags on their own lines
+    let mut stage1 = input.to_string();
+    stage1 = stage1.replace("<!--", "\n<!--");
+    stage1 = stage1.replace("-->", "-->\n");
+    stage1 = stage1.replace("</", "\n</");
+    stage1 = OPEN_TAG.replace_all(&stage1, "\n$tag").to_string();
+    stage1 = stage1.trim().to_string();
+
+    // Now fix indentation
+    let mut stage2: Vec<String> = vec![];
+    let mut indent = 0;
+    for line in stage1.split('\n') {
+        let mut post_add = 0;
+        if line.starts_with("</") {
+            indent -= 1;
+        } else if line.ends_with("/>") || line.starts_with("<!DOCTYPE") || line.starts_with("<meta ") {
+            // Self-closing, nothing
+            // or DOCTYPE, also nothing
+        } else if line.starts_with('<') {
+            post_add += 1;
+        }
+
+        stage2.push(format!("{}{}", "  ".repeat(indent), line));
+        indent += post_add;
+    }
+
+    let pretty_html1 = stage2.join("\n");
+    // let pretty_html2 = EMPTY_LINE.replace_all(&pretty_html1, "\n").to_string();
+    // let pretty_html3 = CLOSE_TAG.replace_all(&pretty_html2, "</").to_string();
+
+    pretty_html1
+
+}
+
 
 #[get("/favicon.ico")]
 pub async fn favicon(_req: HttpRequest) -> io::Result<NamedFile> {
