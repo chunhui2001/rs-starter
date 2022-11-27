@@ -99,8 +99,8 @@ pub async fn index(tmpl: Data<Tera>) -> impl Responder {
 
 }
 
-pub async fn echo(req_body: String) -> impl Responder {
-    HttpResponse::Ok().body(req_body)
+pub async fn info() -> impl Responder {
+    HttpResponse::Ok().json("Hello, server is alive and kicking.")
 }
 
 pub async fn readme(_req: HttpRequest) -> io::Result<NamedFile> {

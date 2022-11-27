@@ -28,6 +28,8 @@ https://rocket.rs/
 https://kerkour.com/rust-web-framework-2022
 https://stackshare.io/stackups/actix-vs-rocket
 
+https://livebook.manning.com/book/rust-servers-services-and-apps/chapter-3/v-10/43
+
 ### Rust之模块和路径（一）
 https://blog.csdn.net/kakadiablo/article/details/115400316
 
