@@ -3,7 +3,7 @@ use std::{time::Duration};
 
 use log4rs;
 
-use actix_web::{web, middleware, web::Data, App, HttpServer};
+use actix_web::{web, middleware, web::Data, Route, App, HttpServer};
 use tera::{Tera};
 
 use crate::middlewares::access_filter::Logger;
@@ -22,12 +22,15 @@ pub struct Server {
 
 fn config(cfg: &mut web::ServiceConfig) {
 
+    let h1: Route = web::get().to(stream);
+    let r1 = ("/stream", h1);
+
     cfg.service(favicon)
        .service(favicon_svg)
        .route("/", web::get().to(index))
        .route("/index", web::get().to(index))
        .route("/home", web::get().to(index))
-       .route("/stream", web::get().to(stream))
+       .route(r1.0, r1.1)
        .route("/readme", web::get().to(readme))
        .route("/info", web::get().to(info))
        .route("/hey", web::get().to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
@@ -88,7 +91,7 @@ impl Server {
                 .wrap(cors())
                 .wrap(logger)
                 .wrap(middleware::NormalizePath::new(middleware::TrailingSlash::Trim))
-                .configure(config)
+                .configure(|wc|config(wc))
                 .default_service(
                     web::route().to(not_found) 
                 )
