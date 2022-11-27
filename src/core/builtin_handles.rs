@@ -1,4 +1,3 @@
-
 use std::{io, time::Duration};
 use actix_web::{http, get, web, error, web::ServiceConfig, Error, web::{Data}, Result, dev::ServiceRequest, HttpRequest, HttpResponse, Responder};
 use actix_cors::Cors;
@@ -22,12 +21,9 @@ pub struct MyError {
 }
 
 // Use default implementation for `error_response()` method
-impl error::ResponseError for MyError {}
-
-pub struct AppData {
-    pub tmpl: Tera
+impl error::ResponseError for MyError {
+    
 }
-
 
 /// Prettify HTML input
 pub fn prettify(input: &str) -> String {
