@@ -24,9 +24,14 @@ clear:
 	rm -rf src/tmp*
 	rm -rf src/*/tmp*
 
+### 生成tls证书
 tls:
 	@#openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -sha256 -subj "/C=CN/ST=Fujian/L=Xiamen/O=TVlinux/OU=Org/CN=muro.lxd"
 	openssl rsa -in key.pem -out nopass.pem
+
+### 测试ssl是否工作正常
+sclient:
+	openssl s_client -connect 127.0.0.1:8443
 
 ### benchmark
 # make load n=10000 p=info
