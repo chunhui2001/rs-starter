@@ -1,7 +1,7 @@
 [package]
 name = "rs-starter"
 edition = "2021"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["keesh.zhang<chunhui2001@gmail.com>"]
 description = "A parser and formatter for std::time::{Duration, SystemTime}\n"
 homepage = "https://github.com/chunhui2001/rs-starter"
