@@ -14,13 +14,6 @@
     box-sizing: border-box
 }
 
-*:where(:not(fieldset, progress, meter)) {
-    border-width: 0;
-    border-style: solid;
-    background-origin: border-box;
-    background-repeat: no-repeat
-}
-
 html {
     block-size: 100%;
     -webkit-text-size-adjust: none
@@ -48,22 +41,12 @@ body {
     max-inline-size: 100%
 }
 
-:where(svg) {
-    stroke: none;
-    fill: currentColor
-}
-
 :where(svg):where(:not([fill])) {
     stroke: currentColor;
     fill: none;
     stroke-linecap: round;
     stroke-linejoin: round
 }
-
-:where(svg):where(:not([width])) {
-    inline-size: 5rem
-}
-
 
 :where(textarea) {
     resize: vertical
@@ -91,14 +74,6 @@ a:not([class]) {
     text-decoration-skip-ink: auto
 }
 
-:where(a[href], area, button, input, label[for], select, summary, textarea, [tabindex]:not([tabindex*="-"])) {
-    cursor: pointer;
-    touch-action: manipulation
-}
-
-:where(input[type="file"]) {
-    cursor: auto
-}
 
 :where(input[type="file"])::-webkit-file-upload-button,
 :where(input[type="file"])::file-selector-button {

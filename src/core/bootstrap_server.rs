@@ -11,7 +11,7 @@ use tera::{Tera};
 use crate::middlewares::access_filter::Logger;
 
 use crate::core::builtin_handles::{favicon, favicon_svg}; 
-use crate::core::builtin_handles::{index, info, readme, stream, about, developer}; 
+use crate::core::builtin_handles::{index, info, readme, stream, about, developer, graphiql}; 
 use crate::core::builtin_handles::{errors, throw_error, not_found}; 
 use crate::core::builtin_handles::{static_handler, tls_builder, cors, access_limiter}; 
 
@@ -38,7 +38,8 @@ fn config(cfg: &mut web::ServiceConfig) {
        .route("/info", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(info))
        .route("/hey", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
        .route("/about", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(about))
-       .route("/throw-error/{id}", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(throw_error));
+       .route("/throw-error/{id}", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(throw_error))
+       .route("/graphiql", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(graphiql));
 
     // user
     cfg.service(create_user)

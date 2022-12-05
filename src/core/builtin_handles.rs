@@ -95,6 +95,22 @@ pub async fn index(tmpl: Data<Tera>) -> impl Responder {
 
 }
 
+pub async fn graphiql(tmpl: Data<Tera>) -> impl Responder {
+
+    let mut ctx = Context::new();
+    ctx.insert("title", "QraphiQl");
+
+    let render_result = tmpl.render("graphiql.html", &ctx);
+
+    match render_result {
+        Ok(rendered) => {
+            HttpResponse::Ok().body(rendered)
+        },
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+
+}
+
 pub async fn info() -> impl Responder {
     HttpResponse::Ok().json("Hello, server is alive and kicking.")
 }
