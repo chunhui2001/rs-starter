@@ -20,7 +20,7 @@ use pin_project_lite::pin_project;
 use regex::{Regex, RegexSet};
 use std::time::Duration;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
-use humantime::format_duration;
+use myhumantime::format_duration;
 use human_repr::HumanCount;
 
 use actix_web::body::{BodySize, MessageBody};
