@@ -3,6 +3,8 @@ use std::{time::Duration};
 
 use log4rs;
 
+// use http;
+use actix_web::http::Method;
 use actix_web::{web, middleware, web::Data, Route, App, HttpServer};
 use tera::{Tera};
 
@@ -22,20 +24,21 @@ pub struct Server {
 
 fn config(cfg: &mut web::ServiceConfig) {
 
-    let h1: Route = web::get().to(stream);
+    let h1: Route = Route::new().method(Method::from_bytes(b"GET").unwrap()).to(stream);
     let r1 = ("/stream", h1);
 
     cfg.service(favicon)
-       .service(favicon_svg)
-       .route("/", web::get().to(index))
-       .route("/index", web::get().to(index))
-       .route("/home", web::get().to(index))
+       .service(favicon_svg);
+
+    cfg.route("/", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(index))
+       .route("/index", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(index))
+       .route("/home", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(index))
        .route(r1.0, r1.1)
-       .route("/readme", web::get().to(readme))
-       .route("/info", web::get().to(info))
-       .route("/hey", web::get().to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
-       .route("/about", web::get().to(about))
-       .route("/throw-error/{id}", web::get().to(throw_error));
+       .route("/readme", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(readme))
+       .route("/info", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(info))
+       .route("/hey", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
+       .route("/about", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(about))
+       .route("/throw-error/{id}", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(throw_error));
 
     // user
     cfg.service(create_user)
@@ -48,9 +51,9 @@ fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
            web::scope("/developer")
                .wrap(access_limiter())
-               .route("", web::get().to(developer))
-               .route("/index", web::get().to(developer))
-               .route("/home", web::get().to(developer))
+               .route("", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(developer))
+               .route("/index", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(developer))
+               .route("/home", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(developer))
        )
        // error handle
        .service(errors);
