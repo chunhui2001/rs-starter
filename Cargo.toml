@@ -3,18 +3,18 @@ name = "rs-starter"
 edition = "2021"
 version = "1.0.0"
 authors = ["keesh.zhang<chunhui2001@gmail.com>"]
-description = "    A parser and formatter for std::time::{Duration, SystemTime}\n"
+description = "A parser and formatter for std::time::{Duration, SystemTime}\n"
 homepage = "https://github.com/chunhui2001/rs-starter"
 documentation = "https://docs.rs/rs-starter"
 #documentation = "https://crates.io/crates/rs-starter"
 readme = "README.md"
-keywords = ["time", "human", "human-friendly", "parser", "duration"]
-categories = ["date-and-time"]
+keywords = ["gin", "rust", "restful"]
+categories = ["restful"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/chunhui2001/rs-starter"
 
 [lib]
-name = "mainlib"
+name = "rs_starter"
 path = "src/lib.rs"
 
 [profile.release]
