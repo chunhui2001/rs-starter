@@ -4,7 +4,10 @@
 
 {% block head %}
     {{ super() }}
+    <link rel="stylesheet" href="/static/vendors/graphiql-2.0.7.min.css"/>
     <style type="text/css">
+    :root {
+    }
     body {
         height: 100%;
         margin: 0;
@@ -15,19 +18,24 @@
     #graphiql {
         height: 80vh;
     }
-    .graphiql-sidebar * {
-    	  box-sizing: content-box;
+    .graphiql-sidebar, .graphiql-main *, .graphiql-sidebar * {
+          box-sizing: content-box;
+    }
+    .graphiql-container .graphiql-sessions, .graphiql-container .graphiql-editors {
+        border-radius:0;
     }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/graphiql@2.0.7/graphiql.min.css" crossorigin="anonymous" />
 {% endblock head %}
 
 {% block content %}
-<div id="graphiql">Loading...</div>
-    <script src="https://cdn.jsdelivr.net/npm/graphiql@2.0.7/graphiql.min.js" crossorigin="anonymous"></script>
-    <script>
+    <div id="graphiql">Loading...</div>
+{% endblock content %}
+
+{% block scripts %}
+    <script type="text/javascript" src="/static/vendors/react.production-17.0.2.min.js"></script>
+    <script type="text/javascript" src="/static/vendors/react-dom.production-17.0.2.min.js"></script>
+    <script type="text/javascript" src="/static/vendors/graphiql-2.0.7.min.js"></script>
+    <script type="text/javascript">
     const url = 'http://127.0.0.1:8080/graphql';
     const subscriptionUrl = 'ws://127.0.0.1:8080/graphql';
     const fetcher = GraphiQL.createFetcher({ url, subscriptionUrl });
@@ -41,4 +49,4 @@
         document.getElementById('graphiql'),
     );
     </script>
-{% endblock content %}
+{% endblock scripts %}

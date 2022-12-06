@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     {% block head %}
+    <title>{% block title %}DEFAULT_TITLE{% endblock title %} - My Webpage</title>
     <link rel="stylesheet" href="/static/reset.css" />
     <link rel="stylesheet" href="/static/site.css" />
-    <title>{% block title %}DEFAULT_TITLE{% endblock title %} - My Webpage</title>
     {% endblock head %}
 </head>
 
@@ -40,6 +40,7 @@
         &copy; Copyright 2022 by <a href="http://domain.invalid/">chunhui2001@gmail.com</a>.
         {% endblock footer %}
     </div>
+    {% block scripts %}{% endblock scripts %}
 </body>
 
 </html>
