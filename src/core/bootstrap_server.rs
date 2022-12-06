@@ -8,13 +8,14 @@ use actix_web::http::Method;
 use actix_web::{web, middleware, web::Data, Route, App, HttpServer};
 use tera::{Tera};
 
-use crate::middlewares::access_filter::Logger;
-
-use crate::core::builtin_handles::{favicon, favicon_svg}; 
+use crate::core::builtin_handles::{favicon, favicon_svg};  
 use crate::core::builtin_handles::{index, info, readme, stream, about, developer, graphiql}; 
 use crate::core::builtin_handles::{errors, throw_error, not_found}; 
 use crate::core::builtin_handles::{static_handler, tls_builder, cors, access_limiter}; 
 
+use crate::middlewares::access_filter::Logger;
+
+use crate::mytools::file_utils; 
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::services::user_service::{create_user, get_user, update_user, delete_user, get_all_users};
 
@@ -79,7 +80,7 @@ impl Server {
         log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();
 
         let db_data = Data::new(MongoRepo::init().await);
-        let tmpl_data = Data::new(Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*")).unwrap());
+        let tmpl_data = Data::new(Tera::new(&[file_utils::ROOT_DIR, "/templates/**/*"].concat().to_string()[..]).unwrap());
 
         let new_app = move || {
         

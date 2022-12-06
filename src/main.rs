@@ -1,3 +1,4 @@
+pub mod mytools;
 pub mod core;
 pub mod middlewares;
 pub mod services;
