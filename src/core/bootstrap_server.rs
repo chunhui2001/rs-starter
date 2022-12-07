@@ -43,7 +43,7 @@ fn config(cfg: &mut web::ServiceConfig) {
        .route("/throw-error/{id}", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(throw_error))
        .route("/graphiql", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(graphiql))
        .route("/mandelbrot", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(|| async { 
-            let args = vec![String::from("mandel.png 4000x3000 -1.20,0.35 -1,0.20")];
+            let args = vec![String::from("mandel.png"), String::from("4000x3000"), String::from("-1.20,0.35"), String::from("-1,0.20")];
             write1(&args); 
             "Successful"
         }));

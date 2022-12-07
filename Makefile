@@ -23,6 +23,7 @@ serve: build
 clear:
 	rm -rf src/tmp*
 	rm -rf src/*/tmp*
+	cargo clean
 
 ### 生成tls证书
 tls:
