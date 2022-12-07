@@ -753,6 +753,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "crossbeam"
+version = "0.2.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bd66663db5a988098a89599d4857919b3acf7f61402e61365acfd3919857b9be"
+
+[[package]]
 name = "crossbeam-channel"
 version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2283,6 +2289,7 @@ dependencies = [
  "actix-web",
  "bytes",
  "chrono",
+ "crossbeam",
  "derive_more",
  "dotenv",
  "env_logger",

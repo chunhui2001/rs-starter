@@ -13,7 +13,6 @@ use tera::{Tera, Context};
 use lazy_static::lazy_static;
 use regex::Regex;
 
-
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
 pub struct MyError {

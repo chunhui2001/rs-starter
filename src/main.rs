@@ -4,6 +4,7 @@ pub mod middlewares;
 pub mod services;
 pub mod models;
 pub mod repository;
+pub mod mandelbrot;
 
 use actix_web;
 

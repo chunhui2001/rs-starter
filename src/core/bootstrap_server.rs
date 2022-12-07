@@ -18,6 +18,7 @@ use crate::middlewares::access_filter::Logger;
 use crate::mytools::file_utils; 
 use crate::repository::mongodb_repo::MongoRepo;
 use crate::services::user_service::{create_user, get_user, update_user, delete_user, get_all_users};
+use crate::mandelbrot::mandelbrot_png::write1;
 
 pub struct Server {
     // apps: Vec<Box<dyn Fn(&mut ServiceConfig) + Send + Sync + 'static>>,
@@ -40,7 +41,12 @@ fn config(cfg: &mut web::ServiceConfig) {
        .route("/hey", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
        .route("/about", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(about))
        .route("/throw-error/{id}", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(throw_error))
-       .route("/graphiql", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(graphiql));
+       .route("/graphiql", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(graphiql))
+       .route("/mandelbrot", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(|| async { 
+            let args = vec![String::from("mandel.png 4000x3000 -1.20,0.35 -1,0.20")];
+            write1(&args); 
+            "Successful"
+        }));
 
     // user
     cfg.service(create_user)
