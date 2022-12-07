@@ -49,6 +49,8 @@ myhumantime = "1.0.0"
 actix-extensible-rate-limit = "0.2.1"
 tera = "0.11"
 lazy_static = "1.4.0"
+num = "0.1.27"
+image = "0.13.0"
 
 time = { version = "0.3.17", default-features = false, features = ["formatting"] }
 
