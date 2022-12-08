@@ -171,7 +171,7 @@ pub async fn mandelbrot() -> io::Result<NamedFile> {
     
     let file_name = "mandel.png";
     let current_file = utils::file::temp_dir() + "/" + file_name;
-    
+
     println!("{}", current_file); 
 
     let args = vec![current_file, String::from("4000x3000"), String::from("-1.20,0.35"), String::from("-1,0.20")];
@@ -179,10 +179,5 @@ pub async fn mandelbrot() -> io::Result<NamedFile> {
     mandelbrot_png::write1(&args);
     
     Ok(NamedFile::open(utils::file::temp_dir() + "/" + file_name)?)
-
-    // println!("{}", utils::file::temp_dir()); 
-    // let body = once(ok::<_, Error>(web::Bytes::from_static(b"Successful")));
-    // HttpResponse::Ok()
-    //     .content_type("text/plain;charset=utf-8")
-    //     .streaming(body)
+    
 }
