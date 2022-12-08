@@ -1,4 +1,4 @@
-pub mod mytools;
+pub mod utils;
 pub mod core;
 pub mod middlewares;
 pub mod services;

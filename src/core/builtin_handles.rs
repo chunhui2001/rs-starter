@@ -1,17 +1,20 @@
-use std::{io, time::Duration};
-use actix_web::{http, get, web, error, web::ServiceConfig, Error, web::{Data}, Result, dev::ServiceRequest, HttpRequest, HttpResponse, Responder};
-use actix_cors::Cors;
+use std::{io};
+
+use actix_web;
+use actix_web::{http, get, web, error, web::ServiceConfig, Error, web::{Data}, Result, HttpRequest, HttpResponse, Responder};
 use actix_files::NamedFile;
-use actix_extensible_rate_limit::{backend::memory::InMemoryBackend, backend::SimpleInputFunctionBuilder, backend::SimpleInput, backend::SimpleOutput, RateLimiter};
 
 use futures::{future::ok, stream::once};
 use derive_more::{Display, Error};
-use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod, SslAcceptorBuilder};
 
+// html template
 use tera::{Tera, Context};
+use regex::Regex;
 
 use lazy_static::lazy_static;
-use regex::Regex;
+
+use crate::utils;
+use crate::mandelbrot::mandelbrot_png;
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -164,24 +167,22 @@ pub fn static_handler(config: &mut ServiceConfig) {
     config.service(fs);
 }
 
-pub fn tls_builder() -> SslAcceptorBuilder {
-    let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
-    builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
-    builder.set_certificate_chain_file("cert.pem").unwrap();
-    return builder
-}
+pub async fn mandelbrot() -> io::Result<NamedFile> {
+    
+    let file_name = "mandel.png";
+    let current_file = utils::file::temp_dir() + "/" + file_name;
+    
+    println!("{}", current_file); 
 
-pub fn cors() -> Cors{
-    return Cors::default()
-    .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
-    .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-    .allowed_header(http::header::CONTENT_TYPE)
-    .max_age(3600);
-}
+    let args = vec![current_file, String::from("4000x3000"), String::from("-1.20,0.35"), String::from("-1,0.20")];
 
-pub fn access_limiter() -> RateLimiter<InMemoryBackend, SimpleOutput, impl Fn(&ServiceRequest) -> std::future::Ready<Result<SimpleInput, Error>>>{
-    return RateLimiter::builder(
-        InMemoryBackend::builder().build(), 
-        SimpleInputFunctionBuilder::new(Duration::from_secs(1), 5).real_ip_key().build()
-    ).add_headers().build();
+    mandelbrot_png::write1(&args);
+    
+    Ok(NamedFile::open(utils::file::temp_dir() + "/" + file_name)?)
+
+    // println!("{}", utils::file::temp_dir()); 
+    // let body = once(ok::<_, Error>(web::Bytes::from_static(b"Successful")));
+    // HttpResponse::Ok()
+    //     .content_type("text/plain;charset=utf-8")
+    //     .streaming(body)
 }
