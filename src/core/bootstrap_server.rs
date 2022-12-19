@@ -32,10 +32,19 @@ pub struct Server {
     // apps: Vec<Box<dyn Fn(&mut ServiceConfig) + Send + Sync + 'static>>,
 }
 
+// fn c2(method: &str, path: &str, f: &dyn std::any::Any) -> (&[u8], &str, &(dyn std::any::Any + 'static)){
+//     (method.as_bytes(), path, f)
+// }
+
 fn config(cfg: &mut web::ServiceConfig) {
 
-    let h1: Route = Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::stream);
-    let r1 = ("/stream", h1);
+    let routes = vec![
+        (b"GET", "/developer2", builtin_handles::developer)
+    ];
+
+    let r1 = (b"GET", "/stream", builtin_handles::stream);
+    let r2 = (b"GET", "/readme", builtin_handles::readme);
+    let r3 = (b"GET", "/info", builtin_handles::info);
 
     cfg.service(builtin_handles::favicon)
        .service(builtin_handles::favicon_svg);
@@ -43,14 +52,21 @@ fn config(cfg: &mut web::ServiceConfig) {
     cfg.route("/", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::index))
        .route("/index", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::index))
        .route("/home", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::index))
-       .route(r1.0, r1.1)
-       .route("/readme", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::readme))
-       .route("/info", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::info))
+       .route(r1.1, Route::new().method(Method::from_bytes(r1.0).unwrap()).to(r1.2))
+       .route(r2.1, Route::new().method(Method::from_bytes(r2.0).unwrap()).to(r2.2))
+       .route(r3.1, Route::new().method(Method::from_bytes(r3.0).unwrap()).to(r3.2))
        .route("/hey", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(|| async { "Hey there! 啊啊送积分啦；送积分啦" }))
        .route("/about", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::about))
        .route("/throw-error/{id}", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::throw_error))
        .route("/graphiql", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::graphiql))
        .route("/mandelbrot", Route::new().method(Method::from_bytes(b"GET").unwrap()).to(builtin_handles::mandelbrot)); // 曼德布洛特集合绘制的灰度图片
+
+    log::info!("Router Count {}", routes.len());
+        
+    for r in routes {
+        log::info!("Added a router: {} {}", std::str::from_utf8(r.0).unwrap(), r.1);
+        cfg.route(r.1, Route::new().method(Method::from_bytes(r.0).unwrap()).to(r.2));
+    }
 
     // user
     cfg.service(create_user)
@@ -75,7 +91,7 @@ fn config(cfg: &mut web::ServiceConfig) {
 }
 
 fn cors() -> Cors{
-    Cors::default() 
+    Cors::default()
     .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
     .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
     .allowed_header(http::header::CONTENT_TYPE)

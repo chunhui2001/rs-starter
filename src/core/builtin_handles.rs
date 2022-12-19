@@ -127,7 +127,7 @@ pub async fn about() -> Result<HttpResponse> {
         .body("<h1>About</h1>"))
 }
 
-pub async fn developer(_req: HttpRequest) -> Result<HttpResponse> {
+pub async fn developer() -> Result<HttpResponse> {
     Ok(HttpResponse::build(http::StatusCode::OK)
         .content_type("text/html;charset=utf-8")
         .body("<h1>Developer</h1>"))
