@@ -39,7 +39,7 @@ pub struct Server {
 fn config(cfg: &mut web::ServiceConfig) {
 
     let routes = vec![
-        (b"GET", "/developer2", builtin_handles::developer)
+        (b"GET", "/developer2", builtin_handles::developer),
     ];
 
     let r1 = (b"GET", "/stream", builtin_handles::stream);
@@ -90,7 +90,7 @@ fn config(cfg: &mut web::ServiceConfig) {
     
 }
 
-fn cors() -> Cors{
+pub fn cors() -> Cors{
     Cors::default()
     .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
     .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
@@ -98,14 +98,14 @@ fn cors() -> Cors{
     .max_age(3600)
 }
 
-fn tls_builder() -> SslAcceptorBuilder {
+pub fn tls_builder() -> SslAcceptorBuilder {
     let mut builder = SslAcceptor::mozilla_intermediate(SslMethod::tls()).unwrap();
     builder.set_private_key_file("key.pem", SslFiletype::PEM).unwrap();
     builder.set_certificate_chain_file("cert.pem").unwrap();
     return builder
 }
 
-fn access_limiter() -> RateLimiter<InMemoryBackend, SimpleOutput, impl Fn(&dev::ServiceRequest) -> std::future::Ready<Result<SimpleInput, actix_web::Error>>>{
+pub fn access_limiter() -> RateLimiter<InMemoryBackend, SimpleOutput, impl Fn(&dev::ServiceRequest) -> std::future::Ready<Result<SimpleInput, actix_web::Error>>>{
     return RateLimiter::builder(
         InMemoryBackend::builder().build(), 
         SimpleInputFunctionBuilder::new(Duration::from_secs(1), 5).real_ip_key().build()
@@ -151,18 +151,24 @@ impl Server {
         
         };
 
-        HttpServer::new(new_app)
+        let serve_result = HttpServer::new(new_app)
                    .backlog(8192)
-                   .workers(4)
+                   .workers(1)
                    .keep_alive(Duration::from_secs(75))
                    .bind(format!("0.0.0.0:{}", 8000))
                    .unwrap_or_else(|_| panic!("🔥 Couldn't start the server at port {}", 8000))
-                   .bind_openssl("127.0.0.1:8443", tls_builder())
+                   .bind_openssl(format!("0.0.0.0:{}", 8443), tls_builder())
                    .expect("Failed to bind to port: 8443")
                    .run()
-                   .await
-                   .expect("Failed to run server")
-        
+                   .await;
+
+        log::info!("Congratulations! Your server startup successfully.");
+
+        match serve_result {
+            Ok(()) =>  log::info!("Congratulations! Your server startup successfully"),
+            Err(err) => log::error!("Failed to run server: {}", err.to_string()),
+        }
+
     }
 
 }
