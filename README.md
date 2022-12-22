@@ -3,6 +3,12 @@
 ### install rust development environment
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
+### 环境配置: macOS配置基于sublime text4的Rust开发环境(rust-analyzer)
+https://www.cnblogs.com/fijiisland/p/15635408.html
+
+### 如何使用VSCode配置Rust开发环境(VS Code 安装 Rust 常用插件)
+https://blog.csdn.net/inthat/article/details/121519036
+
 ### cargo-watch 用于监控项目中的文件变化并运行命令。
 $ cargo install cargo-watch
 
