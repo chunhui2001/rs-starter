@@ -6,6 +6,12 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ### 环境配置: macOS配置基于sublime text4的Rust开发环境(rust-analyzer)
 https://www.cnblogs.com/fijiisland/p/15635408.html
 
+通过sublime打开一个随意的rust文件或项目文件夹，快捷键command + shift + p调出命令选项，有两种命令可选：
+	-- LSP: Enable Language Server Globally 此命令会让 sublime 只要启动就加载所选的代码分析前端（不建议，会影响 sublime 的冷启动性能）
+	-- LSP: Enable Language Server In Project 此命令会让 sublime 在打开当前文件/项目时才加载所选的代码分析前端，重启后需要重新操作一遍
+
+回车后，在下拉菜单中选择 'rust-analyzer' 就完成了全部配置，一切顺利的话界面显示类似下图，左下角会显示rust-analyzer对代码进行索引分析，指针悬停于代码有相应提示：
+
 ### 如何使用VSCode配置Rust开发环境(VS Code 安装 Rust 常用插件)
 https://blog.csdn.net/inthat/article/details/121519036
 
