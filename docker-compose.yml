@@ -1,0 +1,35 @@
+
+## 安装Docker Compose
+# curl -L https://github.com/docker/compose/releases/download/1.24.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+# chmod +x /usr/local/bin/docker-compose
+# docker-compose --version
+# docker-compose up -d
+version: '2.4'
+networks:
+    br0:
+      external: true
+
+services:
+  rs-starter:
+    container_name: rs-starter
+    image: chunhui2001/debian11:rust-1.66.0.slim
+    hostname: rs-starter
+    #mem_limit: 2048m
+    ports:
+      - 8000:8000
+      - 8443:8443
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    #environment:
+      #- TZ=Asia/Shanghai
+      #- TZ=UTC
+    entrypoint: ["/bin/sh", "-c", "while true; do echo 1 >/dev/null 2>/dev/null; sleep 1; done"]
+    #volumes:
+    #  - ./resources:/dist/resources:ro
+    restart: always
+    networks:
+        br0:
+          ipv4_address: 172.16.197.212
+    
+
+
