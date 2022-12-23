@@ -24,8 +24,10 @@ Build:
 	docker run --rm -it -v $(PWD):/dist:rw --name build_$(APP_NAME) chunhui2001/debian11:rust-1.66.0.slim /bin/bash -c 'cd /dist && make -f Makefile Built2' -m 4g
 
 serve: Built1
-	@#./target/debug/rs-starter
 	RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/release/rs-starter
+
+startup:
+	cd /dist && RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/x86_64-unknown-linux-musl/release/rs-starter
 
 clear:
 	rm -rf src/tmp*

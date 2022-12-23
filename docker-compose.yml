@@ -20,12 +20,19 @@ services:
       - 8443:8443
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    #environment:
+    environment:
       #- TZ=Asia/Shanghai
-      #- TZ=UTC
-    entrypoint: ["/bin/sh", "-c", "while true; do echo 1 >/dev/null 2>/dev/null; sleep 1; done"]
-    #volumes:
-    #  - ./resources:/dist/resources:ro
+      - TZ=UTC
+    #entrypoint: ["/bin/sh", "-c", "while true; do echo 1 >/dev/null 2>/dev/null; sleep 1; done"]
+    entrypoint: ["make", "-f", "/dist/Makefile", "startup"]
+    volumes:
+      - ./target:/dist/target:ro
+      - ./resources:/dist/resources:ro
+      - ./static:/dist/static:ro
+      - ./templates:/dist/templates:ro
+      - ./key.pem:/dist/key.pem:ro
+      - ./cert.pem:/dist/cert.pem:ro
+      - ./Makefile:/dist/Makefile:ro
     restart: always
     networks:
         br0:
