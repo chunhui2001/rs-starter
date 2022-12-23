@@ -29,9 +29,16 @@ serve: Built1
 startup:
 	cd /dist && RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/x86_64-unknown-linux-musl/release/rs-starter
 
+up: down Build
+	docker-compose -f docker-compose.yml up -d
+
+down:
+	docker rm -f rs-starter
+
 clear:
 	rm -rf src/tmp*
 	rm -rf src/*/tmp*
+	rm -rf target
 	#cargo clean
 
 ### 生成tls证书
