@@ -21,7 +21,7 @@ Built2:
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-musl
 	
 Build:
-	docker run --rm -it -v $(PWD):/dist:rw --name build_$(APP_NAME) chunhui2001/debian11:rust-1.66.0.slim /bin/bash -c 'cd /dist && make -f Makefile Built2' -m 4g
+	docker run --rm -it -v $(PWD):/dist:rw --name build_$(APP_NAME) chunhui2001/debian11:rust-1.66.0.slim /bin/bash -c 'cd /dist && make -f Makefile Built2' -m 6g
 
 serve: Built1
 	RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/release/rs-starter
