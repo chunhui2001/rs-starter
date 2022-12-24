@@ -56,3 +56,9 @@ sclient:
 load:
 	oha -n 1000 http://127.0.0.1:8000 && reset && oha -n 100000 -c 1000 --latency-correction --disable-keepalive http://127.0.0.1:8000
 
+### https://github.com/chunhui2001/wrk
+# $ brew install wrk
+load2:
+	wrk -t12 -c400 -d30s http://127.0.0.1:8000
+
+
