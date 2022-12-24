@@ -54,5 +54,5 @@ sclient:
 # $ cargo install oha
 # make load n=10000 p=info
 load:
-	oha -n 1000 http://127.0.0.1:8000 && reset && oha -n 1000000 -c 1000 --latency-correction --disable-keepalive http://127.0.0.1:8000
+	oha -n 1000 http://127.0.0.1:8000 && reset && oha -n 100000 -c 1000 --latency-correction --disable-keepalive http://127.0.0.1:8000
 

@@ -153,7 +153,7 @@ impl Server {
 
         let serve_result = HttpServer::new(new_app)
                    .backlog(8192)
-                   .workers(1)
+                   .workers(8)
                    .keep_alive(Duration::from_secs(75))
                    .bind(format!("0.0.0.0:{}", 8000))
                    .unwrap_or_else(|_| panic!("🔥 Couldn't start the server at port {}", 8000))
