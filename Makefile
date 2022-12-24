@@ -58,6 +58,7 @@ load:
 
 ### https://github.com/chunhui2001/wrk
 # $ brew install wrk
+# $ apt-get install wrk
 load2:
 	wrk -t12 -c400 -d30s http://127.0.0.1:8000
 
