@@ -17,6 +17,8 @@ https://blog.csdn.net/inthat/article/details/121519036
 
 ### cargo-watch 用于监控项目中的文件变化并运行命令。
 $ cargo install cargo-watch
+$ cargo install oha
+
 
 ### 创建项目
 $ cargo new hello-rocket --bin

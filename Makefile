@@ -51,6 +51,8 @@ sclient:
 	openssl s_client -connect 127.0.0.1:8443
 
 ### benchmark
+# $ cargo install oha
 # make load n=10000 p=info
 load:
-	ab -n 10000 -c 10 "http://127.0.0.1:8000/hey/"
+	oha -n 1000 http://127.0.0.1:8000 && reset && oha -n 1000000 -c 1000 --latency-correction --disable-keepalive http://127.0.0.1:8000
+
