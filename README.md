@@ -129,6 +129,10 @@ https://blog.logrocket.com/the-state-of-rust-http-clients/
 ### 细说Rust错误处理
 https://www.modb.pro/db/137984
 
+### Build a Rust speed test using Actix and WebSockets
+https://www.koyeb.com/tutorials/build-a-rust-speed-test-using-actix-and-websockets
+
+
 
 
 
