@@ -16,7 +16,7 @@ run: clear
 Built1:
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release
 
-Built2:
+Built2: clear
 	rustup target add x86_64-unknown-linux-musl
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-musl
 	
