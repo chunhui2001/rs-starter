@@ -50,6 +50,10 @@ tls:
 sclient:
 	openssl s_client -connect 127.0.0.1:8443
 
+### 生成一个大文件, 用于测试网速
+dd:
+	dd if=/dev/zero of=static/10mb bs=1m count=10
+
 ### benchmark
 # $ cargo install oha
 # make load n=10000 p=info

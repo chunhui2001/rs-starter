@@ -132,6 +132,8 @@ https://www.modb.pro/db/137984
 ### Build a Rust speed test using Actix and WebSockets
 https://www.koyeb.com/tutorials/build-a-rust-speed-test-using-actix-and-websockets
 
+### WebSockets in Actix Web Full Tutorial — WebSockets & Actors
+https://levelup.gitconnected.com/websockets-in-actix-web-full-tutorial-websockets-actors-f7f9484f5086
 
 
 

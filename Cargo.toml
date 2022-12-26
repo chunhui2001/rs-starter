@@ -27,16 +27,24 @@ env_logger = "0.8"
 log = "0.4.17"
 chrono = "0.4.23"
 log4rs = "1.2.0"
+actix = "0.13"
+actix-codec = "0.5"
 actix-web = { version = "4", features = ["openssl"] }
+actix-web-actors = "4.1"
 actix-service = { version = "2.0.2" }
 actix-utils = { version = "3.0.1" }
 bytes = { version = "1.2.1" }
 actix-cors= { version = "0.6.4" }
 actix-files = { version = "0.6.2" }
+actix-rt = "2"
+actix-extensible-rate-limit = "0.2.1"
+awc = "3.0.0-beta.21"
 openssl = { version = "0.10" }
 futures = { version = "0.3.25" }
 futures-core = { version = "0.3.25" }
-futures-util = { version = "0.3.25" }
+futures-util = { version = "0.3.7", default-features = false, features = ["std", "sink"] }
+tokio = { version = "1.13.1", features = ["full"] }
+tokio-stream = "0.1.8"
 derive_more = { version = "0.99.17" }
 serde = "1.0.136"
 serde_json = "1.0.89"
@@ -46,12 +54,12 @@ regex = "1.5.5"
 human-repr = "1"
 #humantime = "2.1.0"
 myhumantime = "1.0.0"
-actix-extensible-rate-limit = "0.2.1"
 tera = "0.11"
 lazy_static = "1.4.0"
 num = "0.1.27"
 image = "0.13.0"
 crossbeam = "0.2.8"
+uuid = { version = "0.8", features = ["v4", "serde"] }
 
 time = { version = "0.3.17", default-features = false, features = ["formatting"] }
 

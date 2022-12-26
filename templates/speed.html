@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Speed{% endblock title %}
+
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+
+        #log {
+            width: 100%;
+            height: 20em;
+            overflow: auto;
+            margin: 0.5em 0;
+            padding: 12px;
+            border: 1px solid black;
+            font-family: monospace;
+            background-color: black;
+        }
+
+        #title {
+            float: left;
+            margin: 12px 0;
+        }
+
+        #start {
+            float: right;
+            margin: 12px 0;
+            background-color: black;
+            color: white;
+            font-size: 18px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: none;
+        }
+
+        #start:disabled,
+        #start[disabled] {
+            background-color: rgb(63, 63, 63);
+            color: lightgray;
+        }
+
+        .msg {
+            margin: 0;
+            padding: 0.25em 0.5em;
+            color: white;
+        }
+
+        .msg--bad {
+            color: lightcoral;
+        }
+
+        .msg--success,
+        .msg--good {
+            color: lightgreen;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+<div>
+    <h1 id="title">Speed Test</h1>
+    <button id="start">start</button>
+</div>
+<div id="log"></div>
+{% endblock content %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        
+    const $startButton = document.querySelector("#start");
+    const $log = document.querySelector("#log");
+
+    // Calculate average from array of numbers
+    const average = (array) => array.reduce((a, b) => a + b) / array.length;
+    const totalTests = 10;
+    let startTime,
+        endTime,
+        testResults = [];
+
+    /** @type {WebSocket | null} */
+    var socket = null;
+
+    function log(msg, type = "status") {
+        $log.innerHTML += `<p class="msg msg--${type}">${msg}</p>`;
+        $log.scrollTop += 1000;
+    }
+
+    function start() {
+        complete();
+
+        const { location } = window;
+
+        const proto = location.protocol.startsWith("https") ? "wss" : "ws";
+        const wsUri = `${proto}://${location.host}/ws`;
+        let testsRun = 0;
+
+        log("Starting...");
+        socket = new WebSocket(wsUri);
+
+        // When the socket is open, we'll update the button
+        // the test status and send the first test request.
+        socket.onopen = () => {
+            log("Started.");
+            // This function updates the "Start" button
+            updateTestStatus();
+            testsRun++;
+            // Get's the time before the first test request
+            startTime = performance.now();
+            socket.send("start");
+        };
+
+        socket.onmessage = (ev) => {
+            // Get's the time once the message is received
+            endTime = performance.now();
+
+            // Creates a log that indicates the test case is finished
+            // and the time it took to complete the test.
+            log(
+                `Completed Test: ${testsRun}/${totalTests}. Took ${
+                    endTime - startTime
+                } milliseconds.`
+            );
+            // We'll store the test results for calculating the average later
+            testResults.push(endTime - startTime);
+
+            if (testsRun < totalTests) {
+                testsRun++;
+                startTime = performance.now();
+                socket.send("start");
+            } else complete();
+        };
+
+        // When the socket is closed, we'll log it and update the "Start" button
+        socket.onclose = () => {
+            log("Finished.", "success");
+            socket = null;
+            updateTestStatus();
+        };
+    }
+
+    function complete() {
+        if (socket) {
+            log("Cleaning up...");
+            socket.close();
+            socket = null;
+
+            // Calculates the average time it took to complete the test
+            let testAverage = average(testResults) / 1000;
+            // 10mb were sent. So MB/s is # of mega bytes divided by the
+            // average time it took to complete the tests.
+            let mbps = 10 / testAverage;
+
+            // Change log color based on result
+            let status;
+            if (mbps < 10) status = "bad";
+            else if (mbps < 50) status = "";
+            else status = "good";
+
+            // Log the results
+            log(
+                `Average speed: ${mbps.toFixed(2)} MB/s or ${(mbps * 8).toFixed(
+                    2
+                )} Mbps`,
+                status
+            );
+
+            // Update the "Start" button
+            updateTestStatus();
+        }
+    }
+
+    function updateTestStatus() {
+        if (socket) {
+            $startButton.disabled = true;
+            $startButton.innerHTML = "Running";
+        } else {
+            $startButton.disabled = false;
+            $startButton.textContent = "Start";
+        }
+    }
+
+    // When the "Start" button is clicked, we'll start the test
+    // and update the "Start" button to indicate the test is running.
+    $startButton.addEventListener("click", () => {
+        if (socket) complete();
+        else start();
+
+        updateTestStatus();
+    });
+
+    updateTestStatus();
+    log('Click "Start" to begin.');
+    </script>
+{% endblock scripts %}
+

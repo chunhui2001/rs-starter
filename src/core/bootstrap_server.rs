@@ -24,6 +24,7 @@ use tera::Tera;
 
 // middlewares
 use crate::middlewares::access_filter;
+// use crate::websocket::lobby::Lobby; // as well as this
 
 use crate::core::builtin_handles;
 use crate::utils;
@@ -41,7 +42,7 @@ pub struct Server {
 //     (method.as_bytes(), path, f)
 // }
 
-fn config(cfg: &mut web::ServiceConfig) {
+pub fn config(cfg: &mut web::ServiceConfig) {
     let routes = vec![(b"GET", "/developer2", builtin_handles::developer)];
 
     let r1 = (b"GET", "/stream", builtin_handles::stream);
@@ -122,7 +123,13 @@ fn config(cfg: &mut web::ServiceConfig) {
         Route::new()
             .method(Method::from_bytes(b"GET").unwrap())
             .to(builtin_handles::mandelbrot),
-    ); // 曼德布洛特集合绘制的灰度图片
+    ) // 曼德布洛特集合绘制的灰度图片
+    .route(
+        "/speed",
+        Route::new()
+            .method(Method::from_bytes(b"GET").unwrap())
+            .to(builtin_handles::speed),
+    );
 
     log::info!("Router Count {}", routes.len());
 
@@ -169,9 +176,14 @@ fn config(cfg: &mut web::ServiceConfig) {
                     .method(Method::from_bytes(b"GET").unwrap())
                     .to(builtin_handles::developer),
             ),
-    )
-    // error handle
-    .service(builtin_handles::errors);
+    );
+
+    // Add the WebSocket route
+    cfg.service(web::resource("/ws").route(web::get().to(builtin_handles::websocket)));
+    // cfg.service(web::resource("/ws").route(web::get().to(echo_ws)));
+
+    // simple error handle
+    cfg.service(builtin_handles::errors);
 
     cfg.configure(builtin_handles::static_handler);
 }
@@ -179,8 +191,8 @@ fn config(cfg: &mut web::ServiceConfig) {
 pub fn cors() -> Cors {
     Cors::default()
         .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
-        .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-        .allowed_header(http::header::CONTENT_TYPE)
+        .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT, http::header::CONTENT_TYPE])
+        .supports_credentials()
         .max_age(3600)
 }
 
@@ -243,13 +255,14 @@ impl Server {
             App::new()
                 .app_data(tmpl_data.clone())
                 .app_data(db_data.clone())
-                .wrap(cors())
+                // .wrap(cors())
                 .wrap(logger)
                 .wrap(middleware::NormalizePath::new(
                     middleware::TrailingSlash::Trim,
                 ))
                 .configure(|wc| config(wc))
                 .default_service(web::route().to(builtin_handles::not_found))
+
         };
 
         let server = HttpServer::new(new_app)

@@ -6,6 +6,7 @@ use actix_web::{
     error, get, http, web, web::Data, web::ServiceConfig, Error, HttpRequest, HttpResponse,
     Responder, Result,
 };
+use actix_web_actors::ws;
 
 use derive_more::{Display, Error};
 use futures::{future::ok, stream::once};
@@ -18,6 +19,7 @@ use lazy_static::lazy_static;
 
 use crate::mandelbrot::mandelbrot_png;
 use crate::utils;
+use crate::websocket;
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -78,8 +80,8 @@ pub async fn favicon(_req: HttpRequest) -> io::Result<NamedFile> {
 }
 
 #[get("/favicon.svg")]
-pub async fn favicon_svg(_req: HttpRequest) -> io::Result<NamedFile> {
-    Ok(NamedFile::open("static/favicon.svg")?)
+pub async fn favicon_svg() -> impl Responder {
+    NamedFile::open_async("./static/favicon.svg").await.unwrap()
 }
 
 pub async fn index(tmpl: Data<Tera>) -> impl Responder {
@@ -192,4 +194,20 @@ pub async fn mandelbrot() -> io::Result<NamedFile> {
     mandelbrot_png::write1(&args);
 
     Ok(NamedFile::open(utils::file::temp_dir() + "/" + file_name)?)
+}
+
+// 测试网速
+/// Speed tests are an excellent way to check your network connection speed.
+/// Fast network connections are key for enjoying a seamless experience on the internet.
+pub async fn speed(tmpl: Data<Tera>) -> impl Responder {
+    let render_result = tmpl.render("speed.html", &Context::new());
+    match render_result {
+        Ok(rendered) => HttpResponse::Ok().body(rendered),
+        Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
+    }
+}
+
+// WebSocket handshake and start `MyWebSocket` actor.
+pub async fn websocket(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+    ws::start(websocket::server::MyWebSocket::new(), &req, stream)
 }

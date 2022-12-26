@@ -56,3 +56,4 @@ app-linux-*
 *.ignore
 .env.temp
 tmp*
+10mb
