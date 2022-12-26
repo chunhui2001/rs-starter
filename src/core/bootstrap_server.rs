@@ -23,7 +23,7 @@ use actix_extensible_rate_limit::{
 use tera::Tera;
 
 // middlewares
-use crate::middlewares::access_filter::Logger;
+use crate::middlewares::access_filter;
 
 use crate::core::builtin_handles;
 use crate::utils;
@@ -220,7 +220,7 @@ impl Server {
         // std::env::set_var("RUST_LOG", "debug");
 
         let server_port = 8000;
-        let tls_enable = true;
+        let tls_enable = false;
 
         log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();
 
@@ -235,7 +235,7 @@ impl Server {
         );
 
         let new_app = move || {
-            let logger = Logger::new("%{r}a \"%r\" %s %b %D")
+            let logger = access_filter::Logger::new("%{r}a \"%r\" %s %b %D")
                 .exclude("/favicon.ico")
                 .exclude("/favicon.svg")
                 .exclude_regex("^/static");
