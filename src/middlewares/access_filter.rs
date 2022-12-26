@@ -1,4 +1,3 @@
-
 use std::{
     borrow::Cow,
     collections::HashSet,
@@ -12,19 +11,23 @@ use std::{
     task::{Context, Poll},
 };
 
-use actix_utils::future::{ready, Ready}; 
+use actix_utils::future::{ready, Ready};
 use bytes::Bytes;
-use futures_core::ready; 
+use futures_core::ready;
+use human_repr::HumanCount;
 use log::{debug, warn};
-use pin_project_lite::pin_project; 
+use myhumantime::format_duration;
+use pin_project_lite::pin_project;
 use regex::{Regex, RegexSet};
 use std::time::Duration;
 use time::{format_description::well_known::Rfc3339, OffsetDateTime};
-use myhumantime::format_duration;
-use human_repr::HumanCount;
 
 use actix_web::body::{BodySize, MessageBody};
-use actix_web::{ dev::{Service, ServiceRequest, ServiceResponse, Transform}, http::header::HeaderName, Error, Result }; 
+use actix_web::{
+    dev::{Service, ServiceRequest, ServiceResponse, Transform},
+    http::header::HeaderName,
+    Error, Result,
+};
 
 #[derive(Debug)]
 pub struct Logger(Rc<Inner>);
@@ -38,7 +41,6 @@ struct Inner {
 }
 
 impl Logger {
-
     pub fn new(format: &str) -> Logger {
         Logger(Rc::new(Inner {
             format: Format::new(format),
@@ -70,7 +72,6 @@ impl Logger {
     //     inner.log_target = target.into();
     //     self
     // }
-
 }
 
 impl Default for Logger {
@@ -238,7 +239,7 @@ where
 }
 
 pin_project! {
-    
+
     pub struct StreamLog<B> {
         #[pin]
         body: B,
@@ -338,12 +339,8 @@ impl Format {
                             unreachable!("regex and code mismatch")
                         }
                     }
-                    "i" => {
-                        FormatText::RequestHeader(HeaderName::try_from(key.as_str()).unwrap())
-                    }
-                    "o" => {
-                        FormatText::ResponseHeader(HeaderName::try_from(key.as_str()).unwrap())
-                    }
+                    "i" => FormatText::RequestHeader(HeaderName::try_from(key.as_str()).unwrap()),
+                    "o" => FormatText::ResponseHeader(HeaderName::try_from(key.as_str()).unwrap()),
                     "e" => FormatText::EnvironHeader(key.as_str().to_owned()),
                     "xi" => FormatText::CustomRequest(key.as_str().to_owned(), None),
                     "xo" => FormatText::CustomResponse(key.as_str().to_owned(), None),
@@ -444,7 +441,7 @@ impl FormatText {
             FormatText::ResponseSize => {
                 size.human_count_bytes().fmt(fmt)
                 // size.fmt(fmt)
-            },
+            }
             FormatText::Time => {
                 let rt = OffsetDateTime::now_utc() - entry_time;
                 let rt = rt.as_seconds_f64();
@@ -452,7 +449,7 @@ impl FormatText {
             }
             FormatText::TimeMillis => {
                 let rt = OffsetDateTime::now_utc() - entry_time;
-                // 1秒=1000毫秒(ms),          1毫秒=1／1000秒 
+                // 1秒=1000毫秒(ms),          1毫秒=1／1000秒
                 // 1秒=1000000微秒(μs OR us), 1微秒=1／1000000秒
                 // 1秒=1000000000纳秒(ns),    1纳秒=1／1000000000秒
                 // 1秒=1000000000000皮秒,     1皮秒=1／1000000000000秒
@@ -565,9 +562,7 @@ impl FormatText {
 }
 
 /// Converter to get a String from something that writes to a Formatter.
-pub(crate) struct FormatDisplay<'a>(
-    &'a dyn Fn(&mut fmt::Formatter<'_>) -> Result<(), fmt::Error>,
-);
+pub(crate) struct FormatDisplay<'a>(&'a dyn Fn(&mut fmt::Formatter<'_>) -> Result<(), fmt::Error>);
 
 impl<'a> fmt::Display for FormatDisplay<'a> {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {

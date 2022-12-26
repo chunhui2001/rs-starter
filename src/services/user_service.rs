@@ -1,5 +1,9 @@
 use crate::{models::user_model::User, repository::mongodb_repo::MongoRepo};
-use actix_web::{ delete, get, post, put, web::{Data, Json, Path}, HttpResponse };
+use actix_web::{
+    delete, get, post, put,
+    web::{Data, Json, Path},
+    HttpResponse,
+};
 use mongodb::bson::oid::ObjectId;
 
 #[post("/user")]

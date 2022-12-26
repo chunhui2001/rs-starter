@@ -1,20 +1,23 @@
-use std::{io};
+use std::io;
 
-use actix_web;
-use actix_web::{http, get, web, error, web::ServiceConfig, Error, web::{Data}, Result, HttpRequest, HttpResponse, Responder};
 use actix_files::NamedFile;
+use actix_web;
+use actix_web::{
+    error, get, http, web, web::Data, web::ServiceConfig, Error, HttpRequest, HttpResponse,
+    Responder, Result,
+};
 
-use futures::{future::ok, stream::once};
 use derive_more::{Display, Error};
+use futures::{future::ok, stream::once};
 
 // html template
-use tera::{Tera, Context};
 use regex::Regex;
+use tera::{Context, Tera};
 
 use lazy_static::lazy_static;
 
-use crate::utils;
 use crate::mandelbrot::mandelbrot_png;
+use crate::utils;
 
 #[derive(Debug, Display, Error)]
 #[display(fmt = "my error: {}", name)]
@@ -23,13 +26,10 @@ pub struct MyError {
 }
 
 // Use default implementation for `error_response()` method
-impl error::ResponseError for MyError {
-    
-}
+impl error::ResponseError for MyError {}
 
 /// Prettify HTML input
 pub fn prettify(input: &str) -> String {
-
     lazy_static! {
         static ref OPEN_TAG: Regex = Regex::new("(?P<tag><[A-z])").unwrap();
         static ref EMPTY_LINE: Regex = Regex::new("(\\s*\n){1,}").unwrap();
@@ -51,7 +51,10 @@ pub fn prettify(input: &str) -> String {
         let mut post_add = 0;
         if line.starts_with("</") {
             indent -= 1;
-        } else if line.ends_with("/>") || line.starts_with("<!DOCTYPE") || line.starts_with("<meta ") {
+        } else if line.ends_with("/>")
+            || line.starts_with("<!DOCTYPE")
+            || line.starts_with("<meta ")
+        {
             // Self-closing, nothing
             // or DOCTYPE, also nothing
         } else if line.starts_with('<') {
@@ -67,9 +70,7 @@ pub fn prettify(input: &str) -> String {
     // let pretty_html3 = CLOSE_TAG.replace_all(&pretty_html2, "</").to_string();
 
     pretty_html1
-
 }
-
 
 #[get("/favicon.ico")]
 pub async fn favicon(_req: HttpRequest) -> io::Result<NamedFile> {
@@ -82,35 +83,39 @@ pub async fn favicon_svg(_req: HttpRequest) -> io::Result<NamedFile> {
 }
 
 pub async fn index(tmpl: Data<Tera>) -> impl Responder {
-
     let mut ctx = Context::new();
     ctx.insert("name", "啦啦发啦");
 
     let render_result = tmpl.render("index.html", &ctx);
 
     match render_result {
-        Ok(rendered) => {
-            HttpResponse::Ok().body(rendered)
-        },
+        Ok(rendered) => HttpResponse::Ok().body(rendered),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
+}
 
+pub async fn maxium() -> HttpResponse {
+    let tup = (
+        0,
+        std::i32::MAX,
+        std::u32::MAX,
+        std::i64::MAX,
+        std::u64::MAX,
+        std::f64::MAX,
+    );
+    HttpResponse::Ok().json(tup)
 }
 
 pub async fn graphiql(tmpl: Data<Tera>) -> impl Responder {
-
     let mut ctx = Context::new();
     ctx.insert("title", "QraphiQl");
 
     let render_result = tmpl.render("graphiql.html", &ctx);
 
     match render_result {
-        Ok(rendered) => {
-            HttpResponse::Ok().body(rendered)
-        },
+        Ok(rendered) => HttpResponse::Ok().body(rendered),
         Err(err) => HttpResponse::InternalServerError().body(err.to_string()),
     }
-
 }
 
 pub async fn info() -> impl Responder {
@@ -133,7 +138,7 @@ pub async fn developer() -> Result<HttpResponse> {
         .body("<h1>Developer</h1>"))
 }
 
-// Response body can be generated asynchronously. 
+// Response body can be generated asynchronously.
 // In this case, body must implement the stream trait Stream<Item=Bytes, Error=Error>, i.e.:
 pub async fn stream() -> HttpResponse {
     let body = once(ok::<_, Error>(web::Bytes::from_static(b"test")));
@@ -144,13 +149,17 @@ pub async fn stream() -> HttpResponse {
 
 #[get("/errors")]
 pub async fn errors() -> Result<&'static str, MyError> {
-    Err(MyError { name: "MyError,粗欧文" })
+    Err(MyError {
+        name: "MyError,粗欧文",
+    })
 }
 
 pub async fn throw_error(id: web::Path<u32>) -> Result<HttpResponse, MyError> {
     let user_id: u32 = id.into_inner();
     log::info!("userId: {}", user_id);
-    Err(MyError { name: "MyError,粗欧文" })
+    Err(MyError {
+        name: "MyError,粗欧文",
+    })
 }
 
 pub async fn not_found(_request: HttpRequest) -> Result<HttpResponse> {
@@ -168,16 +177,19 @@ pub fn static_handler(config: &mut ServiceConfig) {
 }
 
 pub async fn mandelbrot() -> io::Result<NamedFile> {
-    
     let file_name = "mandel.png";
     let current_file = utils::file::temp_dir() + "/" + file_name;
 
-    println!("{}", current_file); 
+    println!("{}", current_file);
 
-    let args = vec![current_file, String::from("4000x3000"), String::from("-1.20,0.35"), String::from("-1,0.20")];
+    let args = vec![
+        current_file,
+        String::from("4000x3000"),
+        String::from("-1.20,0.35"),
+        String::from("-1,0.20"),
+    ];
 
     mandelbrot_png::write1(&args);
-    
+
     Ok(NamedFile::open(utils::file::temp_dir() + "/" + file_name)?)
-    
 }

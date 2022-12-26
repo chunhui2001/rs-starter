@@ -38,7 +38,7 @@ down:
 clear:
 	rm -rf src/tmp*
 	rm -rf src/*/tmp*
-	rm -rf target
+	#rm -rf target
 	#cargo clean
 
 ### 生成tls证书

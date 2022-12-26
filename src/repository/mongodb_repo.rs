@@ -15,7 +15,6 @@ pub struct MongoRepo {
 }
 
 impl MongoRepo {
-    
     pub async fn init() -> Self {
         // dotenv().ok();
         // let uri = match env::var("MONGOURI") {
