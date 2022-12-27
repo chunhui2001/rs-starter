@@ -16,7 +16,8 @@ run: clear
 Built1:
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release
 
-Built2: clear
+Built2:
+	cargo clean
 	rustup target add x86_64-unknown-linux-musl
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release --target x86_64-unknown-linux-musl
 	
@@ -38,8 +39,6 @@ down:
 clear:
 	rm -rf src/tmp*
 	rm -rf src/*/tmp*
-	#rm -rf target
-	#cargo clean
 
 ### 生成tls证书
 tls:

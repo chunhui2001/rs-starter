@@ -126,7 +126,7 @@ https://dev.to/chaudharypraveen98/form-validation-in-rust-404l
 https://docs.rs/actix-ratelimit/latest/actix_ratelimit/
 https://blog.logrocket.com/the-state-of-rust-http-clients/
 
-### 细说Rust错误处理
+### 细说 Rust 错误处理
 https://www.modb.pro/db/137984
 
 ### Build a Rust speed test using Actix and WebSockets
@@ -135,7 +135,8 @@ https://www.koyeb.com/tutorials/build-a-rust-speed-test-using-actix-and-websocke
 ### WebSockets in Actix Web Full Tutorial — WebSockets & Actors
 https://levelup.gitconnected.com/websockets-in-actix-web-full-tutorial-websockets-actors-f7f9484f5086
 
-
+### How to Build a REST API using Actix Rust to Execute System Commands — A Step-by-Step Guide
+https://codeburst.io/how-to-build-a-rest-api-to-execute-system-commands-using-actix-rust-a-step-by-step-guide-e257d5442b16
 
 
 

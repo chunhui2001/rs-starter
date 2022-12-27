@@ -49,11 +49,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWebSocket {
             Ok(ws::Message::Pong(_)) => {
                 self.hb = Instant::now();
             }
-            Ok(ws::Message::Text(_)) => {
+            Ok(ws::Message::Text(msg)) => {
+                log::info!("Websocket-Message={}", msg);
                 let file = File::open("./static/10mb").unwrap();
                 let mut reader = BufReader::new(file);
                 let mut buffer = Vec::new();
-
                 reader.read_to_end(&mut buffer).unwrap();
                 ctx.binary(Bytes::from(buffer));
             }
