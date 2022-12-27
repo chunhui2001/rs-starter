@@ -191,7 +191,11 @@ pub fn config(cfg: &mut web::ServiceConfig) {
 pub fn cors() -> Cors {
     Cors::default()
         .allowed_methods(vec!["GET", "POST", "DELETE", "PUT", "PATCH"])
-        .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT, http::header::CONTENT_TYPE])
+        .allowed_headers(vec![
+            http::header::AUTHORIZATION,
+            http::header::ACCEPT,
+            http::header::CONTENT_TYPE,
+        ])
         .supports_credentials()
         .max_age(3600)
 }
@@ -262,7 +266,6 @@ impl Server {
                 ))
                 .configure(|wc| config(wc))
                 .default_service(web::route().to(builtin_handles::not_found))
-
         };
 
         let server = HttpServer::new(new_app)

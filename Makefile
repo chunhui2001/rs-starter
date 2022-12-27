@@ -29,7 +29,7 @@ serve: Built1
 startup:
 	cd /dist && RUST_BACKTRACE=1 RUST_LOG=actix_web=info ./target/x86_64-unknown-linux-musl/release/rs-starter
 
-up: down Build
+up: down
 	docker-compose -f docker-compose.yml up -d
 
 down:
