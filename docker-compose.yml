@@ -29,6 +29,7 @@ services:
       - ./resources:/dist/resources:ro
       - ./static:/dist/static:ro
       - ./templates:/dist/templates:ro
+      - ./README.md:/dist/README.md:ro
       - ./key.pem:/dist/key.pem:ro
       - ./cert.pem:/dist/cert.pem:ro
       - ./Makefile:/dist/Makefile:ro
