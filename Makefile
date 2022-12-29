@@ -13,6 +13,9 @@ install:
 run: clear
 	TZ=$(zone) RUST_BACKTRACE=1 RUST_LOG=actix_web=debug cargo run --bin rs-starter
 
+clippy:
+	cargo clippy
+
 Built1:
 	RUSTFLAGS='-C target-feature=+crt-static' cargo build --release
 
@@ -50,7 +53,7 @@ sclient:
 	openssl s_client -connect 127.0.0.1:8443
 
 ### 生成一个大文件, 用于测试网速
-dd:
+10mb:
 	dd if=/dev/zero of=static/10mb bs=1m count=10
 
 ### benchmark
