@@ -22,7 +22,7 @@ impl Default for Lobby {
 impl Lobby {
     fn send_message(&self, message: &str, id_to: &Uuid) {
         if let Some(socket_recipient) = self.sessions.get(id_to) {
-            let _ = socket_recipient.do_send(WsMessage(message.to_owned()));
+            socket_recipient.do_send(WsMessage(message.to_owned()));
         } else {
             println!("attempting to send message but couldn't find user id.");
         }

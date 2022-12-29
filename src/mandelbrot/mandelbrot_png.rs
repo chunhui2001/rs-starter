@@ -128,12 +128,7 @@ pub fn write_image(
 ) -> Result<(), std::io::Error> {
     let output = File::create(filename)?; // 此处的?是异常处理的简化写法
     let encoder = PNGEncoder::new(output);
-    encoder.encode(
-        &pixels,
-        bounds.0 as u32,
-        bounds.1 as u32,
-        ColorType::Gray(8),
-    )?; // ColorType::Gray(8) 表示每个字节是一个8位灰度值
+    encoder.encode(pixels, bounds.0 as u32, bounds.1 as u32, ColorType::Gray(8))?; // ColorType::Gray(8) 表示每个字节是一个8位灰度值
     Ok(())
 }
 
@@ -151,8 +146,7 @@ pub fn write1(args: &Vec<String>) {
         .unwrap();
         writeln!(
             std::io::stderr(),
-            "Example: {} mandel.png 1000x750 -1.20,0.35 -1,0.20",
-            "Mandelbrot"
+            "Example: Mandelbrot mandel.png 1000x750 -1.20,0.35 -1,0.20"
         )
         .unwrap();
         std::process::exit(1);

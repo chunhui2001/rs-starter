@@ -7,8 +7,6 @@ pub mod services;
 pub mod utils;
 pub mod websocket;
 
-use actix_web;
-
 use crate::core::bootstrap_server::Server;
 
 #[actix_web::main]

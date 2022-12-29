@@ -249,9 +249,7 @@ impl Server {
         let db_data = Data::new(MongoRepo::init().await);
         let tmpl_data = Data::new(
             Tera::new(
-                &[utils::file::ROOT_DIR, "/templates/**/*"]
-                    .concat()
-                    .to_string()[..],
+                &[utils::file::ROOT_DIR, "/templates/**/*"].concat()[..],
             )
             .unwrap(),
         );

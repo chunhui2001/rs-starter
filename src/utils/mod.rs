@@ -8,5 +8,6 @@ pub mod parse;
 // println!("{}", type_of(&{ || "Hi!" }));
 // println!("{}", type_of(&type_of::<i32>));
 pub fn type_of<T>(_: &T) -> String {
-    format!("{}", std::any::type_name::<T>())
+    // format!("{}", std::any::type_name::<T>())
+    std::any::type_name::<T>().to_string()
 }

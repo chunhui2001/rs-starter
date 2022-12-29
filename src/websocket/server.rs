@@ -14,6 +14,12 @@ pub struct MyWebSocket {
     hb: Instant,
 }
 
+impl Default for MyWebSocket {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MyWebSocket {
     pub fn new() -> Self {
         Self { hb: Instant::now() }
