@@ -71,12 +71,6 @@ pub fn config(cfg: &mut web::ServiceConfig) {
             .to(builtin_handles::index),
     )
     .route(
-        "/maxium",
-        Route::new()
-            .method(Method::from_bytes(b"GET").unwrap())
-            .to(builtin_handles::maxium),
-    )
-    .route(
         r1.1,
         Route::new()
             .method(Method::from_bytes(r1.0).unwrap())
@@ -175,6 +169,18 @@ pub fn config(cfg: &mut web::ServiceConfig) {
                 Route::new()
                     .method(Method::from_bytes(b"GET").unwrap())
                     .to(builtin_handles::developer),
+            )
+            .route(
+                "/maxium",
+                Route::new()
+                    .method(Method::from_bytes(b"GET").unwrap())
+                    .to(builtin_handles::maxium),
+            )
+            .route(
+                "/typeOf",
+                Route::new()
+                    .method(Method::from_bytes(b"GET").unwrap())
+                    .to(builtin_handles::type_of),
             ),
     );
 
@@ -235,7 +241,7 @@ impl Server {
     pub async fn run(self) {
         // std::env::set_var("RUST_LOG", "debug");
 
-        let server_port = 8000;
+        let server_port = 8001;
         let tls_enable = false;
 
         log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();

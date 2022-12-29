@@ -108,6 +108,22 @@ pub async fn maxium() -> HttpResponse {
     HttpResponse::Ok().json(tup)
 }
 
+pub async fn type_of() -> HttpResponse {
+    // HttpResponse::Ok()
+    //     .content_type("text/plain;charset=utf-8")
+    //     .body(utils::type_of(&1))
+
+    let tup = (
+        utils::type_of(&1),
+        utils::type_of(&""),
+        utils::type_of(&"".to_string()),
+        utils::type_of(&1.434),
+        utils::type_of(&{ || "Hi!" }),
+        utils::type_of(&utils::type_of::<i32>),
+    );
+    HttpResponse::Ok().json(tup)
+}
+
 pub async fn graphiql(tmpl: Data<Tera>) -> impl Responder {
     let mut ctx = Context::new();
     ctx.insert("title", "QraphiQl");
