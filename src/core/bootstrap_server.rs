@@ -247,12 +247,8 @@ impl Server {
         log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();
 
         let db_data = Data::new(MongoRepo::init().await);
-        let tmpl_data = Data::new(
-            Tera::new(
-                &[utils::file::ROOT_DIR, "/templates/**/*"].concat()[..],
-            )
-            .unwrap(),
-        );
+        let tmpl_data =
+            Data::new(Tera::new(&[utils::file::ROOT_DIR, "/templates/**/*"].concat()[..]).unwrap());
 
         let new_app = move || {
             let logger = access_filter::Logger::new("%{r}a \"%r\" %s %b %D")

@@ -148,7 +148,6 @@ pub fn static_handler(config: &mut ServiceConfig) {
 }
 
 pub async fn mandelbrot() -> io::Result<NamedFile> {
-
     let file_name = "mandel.png";
     let current_file = utils::file::temp_dir() + "/" + file_name;
 
@@ -164,7 +163,6 @@ pub async fn mandelbrot() -> io::Result<NamedFile> {
     mandelbrot_png::write1(&args);
 
     NamedFile::open(utils::file::temp_dir() + "/" + file_name)
-
 }
 
 // 测试网速
