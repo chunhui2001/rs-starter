@@ -138,6 +138,12 @@ https://levelup.gitconnected.com/websockets-in-actix-web-full-tutorial-websocket
 ### How to Build a REST API using Actix Rust to Execute System Commands — A Step-by-Step Guide
 https://codeburst.io/how-to-build-a-rest-api-to-execute-system-commands-using-actix-rust-a-step-by-step-guide-e257d5442b16
 
+### Developing High Performance Apache Cassandra™ Applications in Rust (Part 1)
+https://www.datastax.com/blog/2021/03/developing-high-performance-apache-cassandra-applications-rust-part-1
+
+### Developing High-Performance Cassandra Applications in Rust (Part 2)
+https://medium.com/building-the-open-data-stack/developing-high-performance-cassandra-applications-in-rust-part-2-10448858f29
+
 
 
 
