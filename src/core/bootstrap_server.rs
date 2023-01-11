@@ -239,10 +239,13 @@ impl Server {
     }
 
     pub async fn run(self) {
-        // std::env::set_var("RUST_LOG", "debug");
 
         let server_port = 8001;
         let tls_enable = false;
+        let min_stack_size = 1024 * 1024 * 4;   // 默认是 2m
+
+        std::env::set_var("RUST_LOG", "debug");
+        std::env::set_var("RUST_MIN_STACK", min_stack_size.to_string()); // 4k
 
         log4rs::init_file("resources/log4rs.yaml", Default::default()).unwrap();
 
